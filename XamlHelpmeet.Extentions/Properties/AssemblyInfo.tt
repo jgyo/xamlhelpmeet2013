@@ -56,7 +56,6 @@ using System.Windows;
 [assembly: AssemblyCulture("")]
 
 [assembly: ComVisible(<#= this.IsComVisible.ToString().ToLower() #>)]
-[assembly: CLSCompliant(<#= this.CLSCompliant.ToString().ToLower() #>)]
 [assembly: NeutralResourcesLanguage("<#= this.Language #>")]
 
 //In order to begin building localizable applications, set 
@@ -82,12 +81,12 @@ using System.Windows;
 [assembly: AssemblyFileVersion("<#= VersionString #>")]
 [assembly: GuidAttribute("<#= this.assemblyGuid #>")]
 <#+
-	int MajorVersion = 0;
-	int MinorVersion = 7;
+	int MajorVersion;
+	int MinorVersion;
 	int BuildNumber;
 	int RevisionNumber = (int)(DateTime.UtcNow - new DateTime(2010,1,1)).TotalDays;
 
-	string Title = "Xaml Helpmeet 2013";
+	string Title = "Xaml Helpmeet Extentions";
 	string Description ="This is beta software and may have bugs. Use at your own risk.";
 	string Company = "Yoder Zone";
 
@@ -97,8 +96,8 @@ using System.Windows;
 	// Setting ComVisible to false makes the types in this assembly not visible 
 	// to COM components.  If you need to access a type in this assembly from 
 	// COM, set the ComVisible attribute to true on that type.
-	bool IsComVisible = true;
-    bool CLSCompliant = false;
+	bool IsComVisible = false;
+//    bool CLSCompliant = false;
     string Language= "en-US";
-    string assemblyGuid= "F012C830-0B1B-4A9B-BAA0-42E00F19F84C";
+    string assemblyGuid= "744689D6-A3E0-4C90-82CE-379073D1E2B6";
 #>

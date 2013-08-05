@@ -8,17 +8,16 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Xaml Helpmeet 2013")]
+[assembly: AssemblyTitle("Xaml Helpmeet Model")]
 [assembly: AssemblyDescription("This is beta software and may have bugs. Use at your own risk.")]
 [assembly: AssemblyConfiguration("Debug")]
 [assembly: AssemblyCompany("Yoder Zone")]
-[assembly: AssemblyProduct("Xaml Helpmeet 2013")]
+[assembly: AssemblyProduct("Xaml Helpmeet Model")]
 [assembly: AssemblyCopyright("Copyright © Yoder Zone 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
-[assembly: ComVisible(true)]
-[assembly: CLSCompliant(false)]
+[assembly: ComVisible(false)]
 [assembly: NeutralResourcesLanguage("en-US")]
 
 //In order to begin building localizable applications, set 
@@ -42,4 +41,4 @@ using System.Windows;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("0.1.3.1312")]
 [assembly: AssemblyFileVersion("0.1.3.1312")]
-[assembly: GuidAttribute("F012C830-0B1B-4A9B-BAA0-42E00F19F84C")]
+[assembly: GuidAttribute("95E0DEA2-30DE-44E6-A8DE-809206279955")]
