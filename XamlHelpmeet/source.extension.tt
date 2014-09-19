@@ -12,8 +12,8 @@
 	int BuildNumber;
 	int MajorVersion;
 	int MinorVersion;
-	string Configuration;
-	string CopyrightYear;
+//	string Configuration;
+//	string CopyrightYear;
 	string VersionString;
 
 	string templateDirectory = Path.GetDirectoryName(this.Host.ResolvePath("..\\."));
@@ -21,9 +21,7 @@
 	string buildFilePath = Path.Combine(templateDirectory, "version.txt");
 	if (!File.Exists(buildFilePath))
     {
-        BuildNumber = 1; 
-        MajorVersion = 0;
-        MinorVersion = 1;
+        throw new InvalidDataException("Unable to find version.txt.");
     }
 	else
 	{
@@ -31,20 +29,20 @@
         MajorVersion = Convert.ToInt32(contents[0]);
         MinorVersion = Convert.ToInt32(contents[1]);
 		BuildNumber = Convert.ToInt32(contents[2]);
-		//File.Delete(buildFilePath);
+	    //CopyrightYear = contents[3];
+	    //File.Delete(buildFilePath);
 	}
-//	File.AppendAllText(buildFilePath, (++BuildNumber).ToString());
-	CopyrightYear = DateTime.UtcNow.Year.ToString();
+
 	VersionString = string.Format("{0}.{1}.{2}", MajorVersion, MinorVersion, BuildNumber);
-#if DEBUG
-	Configuration = "Debug";
-#else
-	Configuration = "Release";
-#endif
+//#if DEBUG
+//	Configuration = "Debug";
+//#else
+//	Configuration = "Release";
+//#endif
 #><PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="CF5710FA-2C46-411D-963C-853D68C7ED9D" Version="<#= VersionString #>" Language="en-US" Publisher="YoderTools" />
-        <DisplayName>Xaml Helpmeet</DisplayName>
+        <Identity Id="CF5710FA-2C46-411D-963C-853D68C7ED9D" Version="<#= VersionString #>" Language="en-US" Publisher="Gil Yoder" />
+        <DisplayName>Xaml Helpmeet 2013</DisplayName>
         <Description xml:space="preserve">Xaml Helpmeet is an extension to Visual Studio 2013 designed to help developers create and edit Xaml documents.</Description>
         <MoreInfo >http://xamlhelpmeet.codeplex.com/</MoreInfo>
         <License>XamlHelpmeet.rtf</License>

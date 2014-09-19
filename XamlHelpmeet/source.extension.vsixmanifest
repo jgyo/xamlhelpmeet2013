@@ -2,8 +2,8 @@
  
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="CF5710FA-2C46-411D-963C-853D68C7ED9D" Version="0.1.3" Language="en-US" Publisher="YoderTools" />
-        <DisplayName>Xaml Helpmeet</DisplayName>
+        <Identity Id="CF5710FA-2C46-411D-963C-853D68C7ED9D" Version="1.1.3" Language="en-US" Publisher="Gil Yoder" />
+        <DisplayName>Xaml Helpmeet 2013</DisplayName>
         <Description xml:space="preserve">Xaml Helpmeet is an extension to Visual Studio 2013 designed to help developers create and edit Xaml documents.</Description>
         <MoreInfo >http://xamlhelpmeet.codeplex.com/</MoreInfo>
         <License>XamlHelpmeet.rtf</License>

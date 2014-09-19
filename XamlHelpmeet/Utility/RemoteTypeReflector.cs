@@ -1,318 +1,381 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using EnvDTE;
-using VSLangProj;
 using XamlHelpmeet.Model;
 using XamlHelpmeet.ReflectionLoader;
 using XamlHelpmeet.UI.SelectClass;
 using XamlHelpmeet.UI.Utilities;
- using XamlHelpmeet.Extensions;
-using System.Text;
+using XamlHelpmeet.Extensions;
 
 namespace XamlHelpmeet.Utility
 {
-	/// <summary>
-	/// 	Remote type reflector.
-	/// </summary>
-	public class RemoteTypeReflector
-	{
-		private AppDomain _secondaryAppDomain;
+using System.Diagnostics.Contracts;
+using System.Linq;
 
-		/// <summary>
-		/// 	Gets class entity from selected class.
-		/// </summary>
-		/// <exception cref="Exception">
-		/// 	Thrown when an exception error condition occurs.
-		/// </exception>
-		/// <param name="TargetProject">
-		/// 	Target project.
-		/// </param>
-		/// <param name="NameOfSourceCommand">
-		/// 	Name of the source command.
-		/// </param>
-		/// <returns>
-		/// 	The class entity from selected class.
-		/// </returns>
-		public ClassEntity GetClassEntityFromSelectedClass(Project TargetProject, string NameOfSourceCommand)
-		{
-			// Karl Shifflett in original vb code:
-			//
-			// 'TODO karl you left off here.  must ensure that the SL verions is added
-			// 'Dim strSilverlightVersion As String = String.Empty
-			// 'If bolIsSilverlight Then
-			// '    strSilverlightVersion = Me.Application.ActiveDocument.ProjectItem.ContainingProject.Properties.Item("TargetFrameworkMoniker").Value.ToString.Replace("Silverlight,Version=v", String.Empty)
-			// 'End If
-			//
-			// Yes, this portion of code was not implemented.
+using VSLangProj;
 
-			string assemblyPath = GetAssemblyInformation(TargetProject);
+/// <summary>
+///     Remote type reflector.
+/// </summary>
+public class RemoteTypeReflector
+{
+    private AppDomain _secondaryAppDomain;
 
-			if (assemblyPath.IsNullOrEmpty())
-			{
-				// This should never execute since, the menu option would be disabled.
-				// If it does run, there is a programming error.
-				throw new Exception("The project associated with the selected file is either not vb, cs or is blacklisted.");
-			}
+    /// <summary>
+    ///     Gets class entity from selected class.
+    /// </summary>
+    /// <exception cref="Exception">
+    ///     Thrown when an exception error condition occurs.
+    /// </exception>
+    /// <param name="TargetProject">
+    ///     Target project.
+    /// </param>
+    /// <param name="NameOfSourceCommand">
+    ///     Name of the source command.
+    /// </param>
+    /// <returns>
+    ///     The class entity from selected class.
+    /// </returns>
+    public ClassEntity GetClassEntityFromSelectedClass(Project TargetProject,
+            string NameOfSourceCommand)
+    {
+        Contract.Requires(TargetProject != null);
+        Contract.Requires(NameOfSourceCommand != null);
 
-			RemoteWorker remoteWorker = null;
-			RemoteResponse<AssembliesNamespacesClasses> remoteResponse = null;
+        // Karl Shifflett in original vb code:
+        //
+        // 'TODO Karl you left off here.  must ensure that the SL versions is added
+        // 'Dim strSilverlightVersion As String = String.Empty
+        //
+        // 'If bolIsSilverlight Then
+        // '    strSilverlightVersion = Me.Application.ActiveDocument.ProjectItem.ContainingProject.Properties.Item(
+        //                              "TargetFrameworkMoniker").Value.ToString.Replace("Silverlight,Version=v", String.Empty)
+        // 'End If
+        //
+        // Yes, this portion of code was not implemented.
 
-			try
-			{
-				var appSetup = new AppDomainSetup()
-				{
-					ApplicationBase = Path.GetDirectoryName(assemblyPath),
-					DisallowApplicationBaseProbing = false,
-					ShadowCopyFiles = "True"
-				};
+        string assemblyPath = GetAssemblyInformation(TargetProject);
 
-				//++ Secondary Application Domain
-				 
-				_secondaryAppDomain = AppDomain.CreateDomain("SecondaryAppDomain", null, appSetup);
-				AppDomain.CurrentDomain.AssemblyResolve += SecondaryAppDomain_AssemblyResolve;
+        if (assemblyPath.IsNullOrEmpty())
+        {
+            // This should never execute since, the menu option would be disabled.
+            // If it does run, there is a programming error.
+            throw new Exception("The project associated with the selected file is either not vb, cs or is blacklisted.");
+        }
 
-				//! This creates remoteWorker in a secondary domain, allowing it to run
-				//! in a separate context from the current domain. This separates
-				//! remoteWorker from the rest of the application (VS), so if the
-				//! domain becomes unstable, it can be unloaded without harming the
-				//! current domain.
-				remoteWorker = _secondaryAppDomain.CreateInstanceFromAndUnwrap(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "XamlHelpmeet.ReflectionLoader.dll"), "XamlHelpmeet.ReflectionLoader.RemoteWorker") as RemoteWorker;
+        RemoteWorker remoteWorker = null;
+        RemoteResponse<AssembliesNamespacesClasses> remoteResponse = null;
 
-				//+ remoteWorker inherits a MarshalByRefObject. This
-				//+ enables access to objects returned by its
-				//+ methods across domains.
+        try
+        {
+            var appSetup = new AppDomainSetup
+            {
+                ApplicationBase = Path.GetDirectoryName(assemblyPath),
+                DisallowApplicationBaseProbing = false,
+                ShadowCopyFiles = "True"
+            };
 
-				if (remoteWorker != null)
-				{
-					var isSilverlight = PtHelpers.IsProjectSilverlight(PtHelpers.GetProjectTypeGuids(TargetProject).Split(';'));
-					
-					// remoteResponse is a helper class that is serialized so it can
-					// wrap objects returned from a secondary (i.e., remote) application
-					// domain.
-					
-					// A problem exists in this call when an object is returned from
-					// the secondary domain that is of a different version than the
-					// same object in the current domain. When that happens an
-					// InvalidCastException is thrown, and remoteResponse will be
-					// null. I think this may occur when XHM is used on its own
-					// assemblies, if the assemblies have been recompiled since
-					// the operating vsix file was produced. In fact it is likely
-					// that the object that is causing the throw is remoteResponse
-					// itself. This might be resolved by freezing the project
-					// that RemoteResponse is in, and compile it only when necessary.
-					// It would make sense also to move the class into the
-					// ReflectionLoader namespace so it is less likely it would
-					// need to be recompiled when other changes are needed in
-					// the solution.
-					remoteResponse = remoteWorker.GetClassEntityFromUserSelectedClass(assemblyPath, isSilverlight, GetProjectReferences(TargetProject));
+            //++ Secondary Application Domain
 
-					if (remoteResponse.ResponseStatus != ResponseStatus.Success)
-					{
-						UIUtilities.ShowExceptionMessage("Unable to Reflect Type", String.Format("The following exception was returned. {0}", remoteResponse.CustomMessageAndException), string.Empty, remoteResponse.Exception.ToString());
-					}
-				}
-				else
-				{
-					UIUtilities.ShowExceptionMessage("Unable To Create Worker", "Can't create Secondary AppDomain RemoteWorker class. CreateInstance and Unwrap methods returned null.");
-				}
-			}
-			catch (FileNotFoundException ex)
-			{
-				UIUtilities.ShowExceptionMessage("File Not Found", String.Format("File not found.{0}{0}Have you built your application?{0}{0}{1}", Environment.NewLine, ex.Message), String.Empty, ex.ToString());
-			}
-			catch (Exception ex)
-			{
-				UIUtilities.ShowExceptionMessage("Unable To Create Secondary AppDomain RemoteWorker", ex.Message, String.Empty, ex.ToString());
-			}
-			finally
-			{
-				AppDomain.CurrentDomain.AssemblyResolve -= SecondaryAppDomain_AssemblyResolve;
+            _secondaryAppDomain = AppDomain.CreateDomain("SecondaryAppDomain", null,
+                                  appSetup);
+            AppDomain.CurrentDomain.AssemblyResolve +=
+                SecondaryAppDomain_AssemblyResolve;
 
-				remoteWorker = null;
-				if (_secondaryAppDomain != null)
-				{
-					try
-					{
-						AppDomain.Unload(_secondaryAppDomain);
-					}
-					catch (Exception ex)
-					{
-						UIUtilities.ShowExceptionMessage("AppDomain.Unload Exception", ex.Message, String.Empty, ex.ToString());
-					}
-				}
-				_secondaryAppDomain = null;
-			}
+            //! This creates remoteWorker in a secondary domain, allowing it to run
+            //! in a separate context from the current domain. This separates
+            //! remoteWorker from the rest of the application (VS), so if the
+            //! domain becomes unstable, it can be unloaded without harming the
+            //! current domain.
 
-			if (remoteResponse == null || remoteResponse.ResponseStatus != ResponseStatus.Success || remoteResponse.Result == null || remoteResponse.Result.Count == 0)
-			{
-				if (remoteResponse == null || remoteResponse.ResponseStatus == ResponseStatus.Success)
-					UIUtilities.ShowInformationMessage("No Model", "Unable to find a class suitable for this command.");
-				return null;
-			}
+            var location = Assembly.GetExecutingAssembly().Location;
+            var directoryName = Path.GetDirectoryName(location);
 
-			SelectClassFromAssembliesWindow frm = null;
-			// ClassEntity classEntity = null;	// Not used in original
+            if (directoryName != null)
+            {
+                var assemblyName = Path.Combine(directoryName,
+                                                "XamlHelpmeet.ReflectionLoader.dll");
+                remoteWorker = this._secondaryAppDomain.CreateInstanceFromAndUnwrap(
+                                   assemblyName,
+                                   "XamlHelpmeet.ReflectionLoader.RemoteWorker") as RemoteWorker;
+            }
 
-			frm = new SelectClassFromAssembliesWindow(remoteResponse.Result, NameOfSourceCommand);
+            //+ remoteWorker inherits a MarshalByRefObject. This
+            //+ enables access to objects returned by its
+            //+ methods across domains.
 
-			if (!frm.ShowDialog() ?? false)
-				return null;
+            if (remoteWorker != null)
+            {
+                var isSilverlight = PtHelpers.IsProjectSilverlight(
+                                        PtHelpers.GetProjectTypeGuids(TargetProject).Split(';'));
 
-			frm.SelectedAssemblyNamespaceClass.ClassEntity.Success = true;
-			if (frm.SelectedAssemblyNamespaceClass.ClassEntity.IsSilverlight)
-			{
-				frm.SelectedAssemblyNamespaceClass.ClassEntity.SilverlightVersion =
-					TargetProject.Properties.Item("TargetFrameworkMoniker").Value.ToString().Replace("Silverlight,Version=v", string.Empty);
-			}
+                // remoteResponse is a helper class that is serialized so it can
+                // wrap objects returned from a secondary (i.e., remote) application
+                // domain.
 
-			return frm.SelectedAssemblyNamespaceClass.ClassEntity;
+                // A problem exists in this call when an object is returned from
+                // the secondary domain that is of a different version than the
+                // same object in the current domain. When that happens an
+                // InvalidCastException is thrown, and remoteResponse will be
+                // null. I think this may occur when XHM is used on its own
+                // assemblies, if the assemblies have been recompiled since
+                // the operating vsix file was produced. In fact it is likely
+                // that the object that is causing the throw is remoteResponse
+                // itself. This might be resolved by freezing the project
+                // that RemoteResponse is in, and compile it only when necessary.
+                // It would make sense also to move the class into the
+                // ReflectionLoader namespace so it is less likely it would
+                // need to be recompiled when other changes are needed in
+                // the solution.
+                remoteResponse = remoteWorker.GetClassEntityFromUserSelectedClass(
+                                     assemblyPath, isSilverlight, GetProjectReferences(TargetProject));
 
-		}
+                if (remoteResponse.ResponseStatus != ResponseStatus.Success)
+                {
+                    UIUtilities.ShowExceptionMessage("Unable to Reflect Type",
+                                                     String.Format("The following exception was returned. {0}",
+                                                             remoteResponse.CustomMessageAndException), string.Empty,
+                                                     remoteResponse.Exception.ToString());
+                }
+            }
+            else
+            {
+                UIUtilities.ShowExceptionMessage("Unable To Create Worker",
+                                                 "Can't create Secondary AppDomain RemoteWorker class. CreateInstance and Unwrap methods returned null.");
+            }
+        }
+        catch (FileNotFoundException ex)
+        {
+            UIUtilities.ShowExceptionMessage("File Not Found",
+                                             String.Format("File not found.{0}{0}Have you built your application?{0}{0}{1}",
+                                                     Environment.NewLine, ex.Message), String.Empty, ex.ToString());
+        }
+        catch (Exception ex)
+        {
+            UIUtilities.ShowExceptionMessage("Unable To Create Secondary AppDomain RemoteWorker",
+                                             ex.Message, String.Empty, ex.ToString());
+        }
+        finally
+        {
+            AppDomain.CurrentDomain.AssemblyResolve -=
+                SecondaryAppDomain_AssemblyResolve;
 
-		private string GetAssemblyInformation(Project TargetProject)
-		{
-			if ((TargetProject.Kind == VSLangProjPrjKind.prjKindVBProject || TargetProject.Kind == VSLangProjPrjKind.prjKindCSharpProject) && !(PtHelpers.IsProjectBlackListed(PtHelpers.GetProjectTypeGuids(TargetProject).Split(';'))))
-			{
-				return PtHelpers.GetAssemblyPath(TargetProject);
-			}
-			return string.Empty;
-		}
+            if (_secondaryAppDomain != null)
+            {
+                try
+                {
+                    AppDomain.Unload(_secondaryAppDomain);
+                }
+                catch (Exception ex)
+                {
+                    UIUtilities.ShowExceptionMessage("AppDomain.Unload Exception", ex.Message,
+                                                     String.Empty, ex.ToString());
+                }
+            }
+            _secondaryAppDomain = null;
+        }
 
-		/// <summary>
-		/// 	Gets class entities for selected project.
-		/// </summary>
-		/// <exception cref="Exception">
-		/// 	Thrown when an exception error condition occurs.
-		/// </exception>
-		/// <param name="TargetProject">
-		/// 	Target project.
-		/// </param>
-		/// <param name="NameOfSourceCommand">
-		/// 	Name of the source command.
-		/// </param>
-		/// <returns>
-		/// 	The class entities for selected project.
-		/// </returns>
-		public AssembliesNamespacesClasses GetClassEntitiesForSelectedProject(Project TargetProject, string NameOfSourceCommand)
-		{
-			string assemblyPath = GetAssemblyInformation(TargetProject);
+        if (remoteResponse == null ||
+                remoteResponse.ResponseStatus != ResponseStatus.Success ||
+                remoteResponse.Result == null || remoteResponse.Result.Count == 0)
+        {
+            if (remoteResponse == null ||
+                    remoteResponse.ResponseStatus == ResponseStatus.Success)
+            { UIUtilities.ShowInformationMessage("No Model", "Unable to find a class suitable for this command."); }
+            return null;
+        }
 
-			if (assemblyPath.IsNullOrEmpty())
-			{
-				throw new Exception("The project associated with the selected file is either not vb, cs or is blacklisted.");
-			}
+        var form = new SelectClassFromAssembliesWindow(remoteResponse.Result,
+                NameOfSourceCommand);
 
-			RemoteWorker remoteWorker = null;
-			RemoteResponse<AssembliesNamespacesClasses> remoteResponse = null;
+        if ((bool)!form.ShowDialog())
+        { return null; }
 
-			try
-			{
-				var appSetup = new AppDomainSetup()
-				{
-					ApplicationBase = Path.GetDirectoryName(assemblyPath),
-					DisallowApplicationBaseProbing = false,
-					ShadowCopyFiles = "True"
-				};
+        form.SelectedAssemblyNamespaceClass.ClassEntity.Success = true;
+        if (form.SelectedAssemblyNamespaceClass.ClassEntity.IsSilverlight)
+        {
+            form.SelectedAssemblyNamespaceClass.ClassEntity.SilverlightVersion =
+                TargetProject.Properties.Item("TargetFrameworkMoniker").Value.ToString().Replace("Silverlight,Version=v",
+                        string.Empty);
+        }
 
-				_secondaryAppDomain = AppDomain.CreateDomain("SecondaryAppDomain", null, appSetup);
-				AppDomain.CurrentDomain.AssemblyResolve += SecondaryAppDomain_AssemblyResolve;
-				remoteWorker = _secondaryAppDomain.CreateInstanceFromAndUnwrap(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "XamlHelpmeet.ReflectionLoader.dll"), "XamlHelpmeet.ReflectionLoader.RemoteWorker") as RemoteWorker;
+        return form.SelectedAssemblyNamespaceClass.ClassEntity;
 
-				if (remoteWorker != null)
-				{
-					var isSilverlight = PtHelpers.IsProjectSilverlight(PtHelpers.GetProjectTypeGuids(TargetProject).Split(';'));
-					remoteResponse = remoteWorker.GetClassEntityFromUserSelectedClass(assemblyPath, isSilverlight, GetProjectReferences(TargetProject));
+    }
 
-					if (remoteResponse.ResponseStatus != ResponseStatus.Success)
-					{
-						UIUtilities.ShowExceptionMessage("Unable to Reflect Type", "The following exception was returned. " + remoteResponse.CustomMessageAndException, string.Empty, remoteResponse.Exception.ToString());
-					}
-					else if (remoteResponse.CustomMessage.IsNotNullOrEmpty())
-					{
-						UIUtilities.ShowInformationMessage("Reflection Error", string.Format("Unable to reflect the following:\r\n\r\n{0}\r\nAt least one other assembly however successfully reflected.", remoteResponse.CustomMessage));
-					}
-				}
-				else
-				{
-					UIUtilities.ShowExceptionMessage("Unable To Create Worker", "Can't create Secondary AppDomain RemoteWorker class. CreateInstance and Unwrap methods returned null.");
-				}
-			}
-			catch (FileNotFoundException ex)
-			{
-				UIUtilities.ShowExceptionMessage("File Not Found", String.Format("File not found.{0}{0}Have you built your application?{0}{0}{1}", Environment.NewLine, ex.Message), String.Empty, ex.ToString());
-			}
-			catch (Exception ex)
-			{
-				UIUtilities.ShowExceptionMessage("Unable To Create Secondary AppDomain RemoteWorker", ex.Message, String.Empty, ex.ToString());
-			}
-			finally
-			{
-				AppDomain.CurrentDomain.AssemblyResolve -= SecondaryAppDomain_AssemblyResolve;
+    private string GetAssemblyInformation(Project TargetProject)
+    {
+        if ((TargetProject.Kind == PrjKind.prjKindVBProject ||
+                TargetProject.Kind == PrjKind.prjKindCSharpProject) &&
+                !(PtHelpers.IsProjectBlackListed(PtHelpers.GetProjectTypeGuids(
+                            TargetProject).Split(';'))))
+        {
+            return PtHelpers.GetAssemblyPath(TargetProject);
+        }
+        return string.Empty;
+    }
 
-				remoteWorker = null;
-				if (_secondaryAppDomain != null)
-				{
-					try
-					{
-						AppDomain.Unload(_secondaryAppDomain);
-					}
-					catch (Exception ex)
-					{
-						UIUtilities.ShowExceptionMessage("AppDomain.Unload Exception", ex.Message, String.Empty, ex.ToString());
-					}
-				}
-				_secondaryAppDomain = null;
-			}
+    /// <summary>
+    ///     Gets class entities for selected project.
+    /// </summary>
+    /// <exception cref="Exception">
+    ///     Thrown when an exception error condition occurs.
+    /// </exception>
+    /// <param name="TargetProject">
+    ///     Target project.
+    /// </param>
+    /// <param name="NameOfSourceCommand">
+    ///     Name of the source command.
+    /// </param>
+    /// <returns>
+    ///     The class entities for selected project.
+    /// </returns>
+    public AssembliesNamespacesClasses GetClassEntitiesForSelectedProject(
+        Project TargetProject, string NameOfSourceCommand)
+    {
+        string assemblyPath = GetAssemblyInformation(TargetProject);
 
-			if (remoteResponse != null || remoteResponse.ResponseStatus != ResponseStatus.Success)
-			{
-				return null;
-			}
-			return remoteResponse.Result;
-		}
+        if (assemblyPath.IsNullOrEmpty())
+        {
+            throw new Exception("The project associated with the selected file is either not vb, cs or is blacklisted.");
+        }
 
-		private List<string> GetProjectReferences(Project TargetProject)
-		{
-			var list = new List<string>();
-			var vsProject = TargetProject.Object as VSProject;
+        RemoteWorker remoteWorker = null;
+        RemoteResponse<AssembliesNamespacesClasses> remoteResponse = null;
 
-			foreach (Reference reference in vsProject.References)
-			{
-				if (reference.IsMicrosoftAssembly())
-				{
-					continue;
-				}
+        try
+        {
+            var appSetup = new AppDomainSetup
+            {
+                ApplicationBase = Path.GetDirectoryName(assemblyPath),
+                DisallowApplicationBaseProbing = false,
+                ShadowCopyFiles = "True"
+            };
 
-				if (reference.Path.IsNullOrEmpty())
-				{
-					UIUtilities.ShowExceptionMessage("Broken Reference Found", String.Format("The {0} reference is broken or unresoloved. It will be ignored for now, but you should correct it or remove the unused reference.", reference.Name));
-					continue;
-				}
+            _secondaryAppDomain = AppDomain.CreateDomain("SecondaryAppDomain", null,
+                                  appSetup);
+            AppDomain.CurrentDomain.AssemblyResolve +=
+                SecondaryAppDomain_AssemblyResolve;
+            var location = Assembly.GetExecutingAssembly().Location;
+            var directoryName = Path.GetDirectoryName(
+                                    location);
 
-				list.Add(reference.Path);
-			}
+            if (directoryName != null)
+            {
+                remoteWorker = this._secondaryAppDomain.CreateInstanceFromAndUnwrap(
+                                   Path.Combine(directoryName,
+                                                "XamlHelpmeet.ReflectionLoader.dll"),
+                                   "XamlHelpmeet.ReflectionLoader.RemoteWorker") as RemoteWorker;
+            }
 
-			return list;
-		}
+            if (remoteWorker != null)
+            {
+                var isSilverlight = PtHelpers.IsProjectSilverlight(
+                                        PtHelpers.GetProjectTypeGuids(TargetProject).Split(';'));
+                remoteResponse = remoteWorker.GetClassEntityFromUserSelectedClass(
+                                     assemblyPath, isSilverlight, GetProjectReferences(TargetProject));
 
-		private Assembly SecondaryAppDomain_AssemblyResolve(object sender, ResolveEventArgs args)
-		{
-			var name = args.Name;
+                if (remoteResponse.ResponseStatus != ResponseStatus.Success)
+                {
+                    UIUtilities.ShowExceptionMessage("Unable to Reflect Type",
+                                                     "The following exception was returned. " +
+                                                     remoteResponse.CustomMessageAndException, string.Empty,
+                                                     remoteResponse.Exception.ToString());
+                }
+                else if (remoteResponse.CustomMessage.IsNotNullOrEmpty())
+                {
+                    UIUtilities.ShowInformationMessage("Reflection Error",
+                                                       string.Format("Unable to reflect the following:\r\n\r\n{0}\r\nAt least one other assembly however successfully reflected.",
+                                                               remoteResponse.CustomMessage));
+                }
+            }
+            else
+            {
+                UIUtilities.ShowExceptionMessage("Unable To Create Worker",
+                                                 "Can't create Secondary AppDomain RemoteWorker class. CreateInstance and Unwrap methods returned null.");
+            }
+        }
+        catch (FileNotFoundException ex)
+        {
+            UIUtilities.ShowExceptionMessage("File Not Found",
+                                             String.Format("File not found.{0}{0}Have you built your application?{0}{0}{1}",
+                                                     Environment.NewLine, ex.Message), String.Empty, ex.ToString());
+        }
+        catch (Exception ex)
+        {
+            UIUtilities.ShowExceptionMessage("Unable To Create Secondary AppDomain RemoteWorker",
+                                             ex.Message, String.Empty, ex.ToString());
+        }
+        finally
+        {
+            AppDomain.CurrentDomain.AssemblyResolve -=
+                SecondaryAppDomain_AssemblyResolve;
 
-			foreach (var item in AppDomain.CurrentDomain.GetAssemblies())
-			{
-				var foundName = item.FullName;
+            if (_secondaryAppDomain != null)
+            {
+                try
+                {
+                    AppDomain.Unload(_secondaryAppDomain);
+                }
+                catch (Exception ex)
+                {
+                    UIUtilities.ShowExceptionMessage("AppDomain.Unload Exception", ex.Message,
+                                                     String.Empty, ex.ToString());
+                }
+            }
+            _secondaryAppDomain = null;
+        }
 
-				if (foundName == name)
-				{
-					return item;
-				}
-			}
+        if (remoteResponse == null ||
+                remoteResponse.ResponseStatus != ResponseStatus.Success)
+        {
+            return null;
+        }
+        return remoteResponse.Result;
+    }
 
-			return null;
-		}
-	}
+    private List<string> GetProjectReferences(Project TargetProject)
+    {
+        var list = new List<string>();
+        var vsProject = TargetProject.Object as VSProject;
+
+        if (vsProject == null)
+        {
+            return list;
+        }
+
+        foreach (Reference reference in vsProject.References)
+        {
+            if (reference.IsMicrosoftAssembly())
+            {
+                continue;
+            }
+
+            if (reference.Path.IsNullOrEmpty())
+            {
+                UIUtilities.ShowExceptionMessage("Broken Reference Found",
+                                                 String.Format("The {0} reference is broken or unresolved. It will be ignored for now, but you should correct it or remove the unused reference.",
+                                                         reference.Name));
+                continue;
+            }
+
+            list.Add(reference.Path);
+        }
+
+        return list;
+    }
+
+    private Assembly SecondaryAppDomain_AssemblyResolve(object sender,
+            ResolveEventArgs args)
+    {
+        var name = args.Name;
+
+        return (from item in AppDomain.CurrentDomain.GetAssemblies()
+                let foundName = item.FullName
+                                where foundName == name
+                                select item).FirstOrDefault();
+    }
+}
 }
