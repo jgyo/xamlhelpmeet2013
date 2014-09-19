@@ -9,36 +9,18 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Xaml Helpmeet Extentions")]
-[assembly: AssemblyDescription("This is beta software and may have bugs. Use at your own risk.")]
+[assembly: AssemblyDescription("This is debug code and may have bugs. Use at your own risk. This software was compiled at 9/19/2014 2:24:15 PM UTC by Gil.")]
 [assembly: AssemblyConfiguration("Debug")]
-[assembly: AssemblyCompany("Yoder Zone")]
+[assembly: AssemblyCompany("Gil Yoder")]
 [assembly: AssemblyProduct("Xaml Helpmeet Extentions")]
-[assembly: AssemblyCopyright("Copyright © Yoder Zone 2013")]
+[assembly: AssemblyCopyright("Copyright © Gil Yoder 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
 [assembly: ComVisible(false)]
 [assembly: NeutralResourcesLanguage("en-US")]
 
-//In order to begin building localizable applications, set 
-//<UICulture>CultureYouAreCodingWith</UICulture> in your .csproj file
-//inside a <PropertyGroup>.  For example, if you are using US english
-//in your source files, set the <UICulture> to en-US.  Then uncomment
-//the NeutralResourceLanguage attribute below.  Update the "en-US" in
-//the line below to match the UICulture setting in the project file.
-
-//[assembly: NeutralResourcesLanguage("en-US", UltimateResourceFallbackLocation.Satellite)]
-
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version 
-//      Build Number
-//      Revision
-//
-// You can specify all the values or you can default the Build and Revision Numbers 
-// by using the '*' as shown below:
-// [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.1.3.1312")]
-[assembly: AssemblyFileVersion("0.1.3.1312")]
+//Version Directory: D:\VS2013PROJECTS\xamlhelpmeet2013\XamlHelpmeet.Extentions\Properties\..\..
+[assembly: AssemblyVersion("1.1.3.1722")]
+[assembly: AssemblyFileVersion("1.1.3.1722")]
 [assembly: GuidAttribute("744689D6-A3E0-4C90-82CE-379073D1E2B6")]
