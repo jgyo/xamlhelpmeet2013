@@ -23,12 +23,19 @@ using System.Text.RegularExpressions;
 
 namespace XamlHelpmeet.Utility.XamlParts
 {
+using System.Linq;
+
+using NLog;
+
 /// <summary>
 /// An XAML tag.
 /// </summary>
 /// <seealso cref="T:XamlHelpmeet.Utility.XamlParts.XamlPart"/>
 public class XamlTag : XamlPart
 {
+    private static readonly Logger logger =
+        LogManager.GetCurrentClassLogger();
+
     /// <summary>
     /// Initializes a new instance of the
     /// XamlHelpmeet.Utility.XamlParts.XamlTag class.
@@ -42,6 +49,8 @@ public class XamlTag : XamlPart
     /// </param>
     public XamlTag(Match match) : base(match.Value, match.Index)
     {
+
+        logger.Trace("Entered XamlTag()");
         try
         {
             var matchResults = Regex.Match(match.Value,
@@ -146,31 +155,35 @@ public class XamlTag : XamlPart
     /// </returns>
     public IReadOnlyList<XamlAttribute> GetAttributes()
     {
-        if (_attributes == null)
+
+        logger.Trace("Entered GetAttributes()");
+        if (this._attributes != null)
         {
-            try
+            return this._attributes;
+        }
+
+        try
+        {
+            var regexObj = new Regex(
+                @"(?:\s+(?<Attribute>(?<AttribName>\w+?(?::\w+?)?)=""(?<AttribValue>.*?)""))",
+                RegexOptions.Singleline | RegexOptions.IgnoreCase);
+            var matches = regexObj.Matches(this.TagText);
+            if (matches.Count > 0)
             {
-                var regexObj = new Regex(
-                    @"(?:\s+(?<Attribute>(?<AttribName>\w+?(?::\w+?)?)=""(?<AttribValue>.*?)""))",
-                    RegexOptions.Singleline | RegexOptions.IgnoreCase);
-                var matches = regexObj.Matches(TagText);
-                if (matches.Count > 0)
+                this._attributes = new List<XamlAttribute>();
+                foreach (var attrib in from Match match in matches
+                         select new XamlAttribute(match.Value, this.TopPoint + match.Index,
+                                                  match.Groups["AttribName"].Captures[0].Value,
+                                                  match.Groups["AttribValue"].Captures[0].Value))
                 {
-                    _attributes = new List<XamlAttribute>();
-                    foreach (Match match in matches)
-                    {
-                        var attrib = new XamlAttribute(match.Value, TopPoint + match.Index,
-                                                       match.Groups["AttribName"].Captures[0].Value,
-                                                       match.Groups["AttribValue"].Captures[0].Value);
-                        _attributes.Add(attrib);
-                    }
+                    this._attributes.Add(attrib);
                 }
             }
-            catch (ArgumentException ex)
-            {
-                // Syntax error in the regular expression
-                throw new ArgumentException("Syntax error in regular expression.", ex);
-            }
+        }
+        catch (ArgumentException ex)
+        {
+            // Syntax error in the regular expression
+            throw new ArgumentException("Syntax error in regular expression.", ex);
         }
         return _attributes;
     }

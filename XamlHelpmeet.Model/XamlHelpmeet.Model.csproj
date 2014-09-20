@@ -61,6 +61,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="NLog">
+      <HintPath>..\packages\NLog.3.1.0.0\lib\net45\NLog.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -71,10 +74,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Address.cs" />
-    <Compile Include="Addresses.cs" />
-    <Compile Include="AssembliesNamespacesClass.cs" />
-    <Compile Include="AssembliesNamespacesClasses.cs" />
+    <Compile Include="ClassInformation.cs" />
+    <Compile Include="ClassInformationList.cs" />
     <Compile Include="CellContent.cs" />
     <Compile Include="ClassEntity.cs" />
     <Compile Include="ControlType.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="SampleFormat.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="Properties\AssemblyInfo.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>AssemblyInfo.cs</LastGenOutput>

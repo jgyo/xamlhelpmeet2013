@@ -27,12 +27,20 @@ using XamlHelpmeet.UI.Utilities;
 
 namespace XamlHelpmeet.Commands.NoUI
 {
+using NLog;
+
 /// <summary>
 /// A narrow selection command.
 /// </summary>
 /// <seealso cref="T:XamlHelpmeet.Commands.CommandBase"/>
 public class NarrowSelectionCommand : CommandBase
 {
+    /// <summary>
+    /// The logger.
+    /// </summary>
+    private static readonly Logger logger =
+        LogManager.GetCurrentClassLogger();
+
     /// <summary>
     /// Initializes a new instance of the NarrowSelection class.
     /// </summary>
@@ -45,6 +53,8 @@ public class NarrowSelectionCommand : CommandBase
     public NarrowSelectionCommand(DTE2 application, CommandID id)
     : base(application, id)
     {
+        logger.Trace("Entered NarrowSelectionCommand()");
+
         Caption = "Narrow Selection";
         CommandName = "NarrowSelection";
         ToolTip = "Remove containing tags from current selection.";
@@ -63,6 +73,8 @@ public class NarrowSelectionCommand : CommandBase
     /// </returns>
     public override bool CanExecute(vsCommandExecOption executeOption)
     {
+        logger.Trace("Entered CanExecute()");
+
         return base.CanExecute(executeOption) && IsTextSelected();
     }
 
@@ -76,6 +88,8 @@ public class NarrowSelectionCommand : CommandBase
     /// </returns>
     public override vsCommandStatus GetStatus()
     {
+        logger.Trace("Entered GetStatus()");
+
         // This will add vsCommandStatusEnabled to vsCommandStatusSupported,
         // if IsTextSelected() returns true. Otherwise or'ing with
         // vsCommandStatusUnsupported leaves vsCommandStatusSupported
@@ -96,6 +110,8 @@ public class NarrowSelectionCommand : CommandBase
     /// <seealso cref="M:XamlHelpmeet.Commands.CommandBase.Execute()"/>
     public override void Execute()
     {
+        logger.Trace("Entered Execute()");
+
         var selection = Application.ActiveDocument.Selection as TextSelection;
         var result = selection.ContractSelection();
 

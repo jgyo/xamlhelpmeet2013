@@ -1,24 +1,23 @@
 ﻿<#@ template  debug="true" hostSpecific="true" #>
 <#@ output extension=".txt" #>
-<#@ import namespace="System" #>
+<#@ import namespace="System.Globalization" #>
 <#@ import namespace="System.IO" #>
-<#@ import namespace="System.Diagnostics" #>
-<#@ import namespace="System.Collections" #>
-<#@ import namespace="System.Collections.Generic" #> 
+ 
 <#
-	int BuildNumber;
+	int buildNumber;
 	int MajorVersion;
 	int MinorVersion;
-	string Configuration;
-	string CopyrightYear;
-	string VersionString;
 
-	string templateDirectory = Path.GetDirectoryName(this.Host.ResolvePath("..\\."));
-	
+    string templateDirectory = Path.GetDirectoryName(this.Host.ResolvePath("..\\."));
+    if (templateDirectory == null)
+    {
+        throw new Exception("templageDirectory is Null.");
+    }
+
 	string buildFilePath = Path.Combine(templateDirectory, "version.txt");
 	if (!File.Exists(buildFilePath))
     {
-        BuildNumber = 1;
+        buildNumber = 1;
         MajorVersion = 0;
         MinorVersion = 1;
     }
@@ -27,16 +26,16 @@
 		var contents = File.ReadAllLines(buildFilePath);
         MajorVersion = Convert.ToInt32(contents[0]);
         MinorVersion = Convert.ToInt32(contents[1]);
-		BuildNumber = Convert.ToInt32(contents[2]);
+		buildNumber = Convert.ToInt32(contents[2]);
 		//File.Delete(buildFilePath);
 	}
 //	File.AppendAllText(buildFilePath, (++BuildNumber).ToString());
-	CopyrightYear = DateTime.UtcNow.Year.ToString();
-	VersionString = string.Format("{0}.{1}.{2}", MajorVersion, MinorVersion, BuildNumber);
+	string CopyrightYear = DateTime.UtcNow.Year.ToString(CultureInfo.InvariantCulture);
+	string VersionString = string.Format("{0}.{1}.{2}", MajorVersion, MinorVersion, buildNumber);
 #if DEBUG
-	Configuration = "Debug";
+	string Configuration = "Debug";
 #else
-	Configuration = "Release";
+	const string Configuration = "Release";
 #endif
 #>RELEASE NOTES FOR XAML HELPMEET 2013 <#= VersionString #> Beta <#= Configuration #>
 Copyright (c) Gil Yoder <#= CopyrightYear #>

@@ -9,13 +9,20 @@ using System.Collections.Generic;
 
 namespace XamlHelpmeet.Utility
 {
+using NLog;
+
 /// <summary>
 ///     Collection of xaml nodes.
 /// </summary>
 /// <seealso cref="T:System.Collections.Generic.LinkedList{XamlHelpmeet.Utility.XamlNode}"/>
-public sealed class XamlNodeCollection : LinkedList<XamlNode>,
-    System.Runtime.Serialization.ISerializable
+public sealed class XamlNodeCollection : LinkedList<XamlNode>
 {
+    /// <summary>
+    /// The logger.
+    /// </summary>
+    private static readonly Logger logger =
+        LogManager.GetCurrentClassLogger();
+
     private readonly XamlNode _owner;
 
     /// <summary>
@@ -26,6 +33,8 @@ public sealed class XamlNodeCollection : LinkedList<XamlNode>,
     /// </param>
     public XamlNodeCollection(XamlNode owner)
     {
+
+        logger.Trace("Entered XamlNodeCollection()");
         _owner = owner;
     }
 
@@ -50,6 +59,9 @@ public sealed class XamlNodeCollection : LinkedList<XamlNode>,
 /// </summary>
 public static class XamlCollectionHelper
 {
+    private static readonly Logger logger =
+        LogManager.GetCurrentClassLogger();
+
     /// <summary>
     ///     An XamlCollection extension method that queries if 'target' is
     ///     empty.
@@ -62,6 +74,8 @@ public static class XamlCollectionHelper
     /// </returns>
     public static bool IsEmpty(this XamlNodeCollection target)
     {
+
+        logger.Trace("Entered IsEmpty()");
         return target == null || target.Count == 0;
     }
 }

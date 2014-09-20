@@ -2,20 +2,13 @@
 <#@ output extension=".cs" #>
 <#@ Assembly Name="System.Core" #>
 <#@ Assembly Name="System.Windows.Forms" #>
-<#@ import namespace="System" #>
 <#@ import namespace="System.IO" #>
-<#@ import namespace="System.Diagnostics" #>
-<#@ import namespace="System.Linq" #>
-<#@ import namespace="System.Collections" #>
-<#@ import namespace="System.Collections.Generic" #>
 <#
 	string templateDirectory = Path.GetDirectoryName(this.Host.ResolvePath("..\\..\\."));
-	
-    var contents = new string[4];
-	
-	if (templateDirectory == null)
+
+    if (templateDirectory == null)
 	{
-	    throw new ArgumentNullException("templateDirectory");
+	    throw new Exception("templateDirectory");
 	}
 
 	string buildFilePath = Path.Combine(templateDirectory, "version.txt");
@@ -33,7 +26,7 @@
         throw new InvalidDataException("Unable to find version.txt.");
     }
 
-	contents = File.ReadAllLines(buildFilePath);
+	string[] contents = File.ReadAllLines(buildFilePath);
     MajorVersion = Convert.ToInt32(contents[0]);
     MinorVersion = Convert.ToInt32(contents[1]);
 	BuildNumber = Convert.ToInt32(contents[2]);

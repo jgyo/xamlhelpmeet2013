@@ -14,6 +14,8 @@ namespace XamlHelpmeet.Utility
 using System.Diagnostics.Contracts;
 using System.Linq;
 
+using NLog;
+
 using VSLangProj;
 
 /// <summary>
@@ -21,6 +23,9 @@ using VSLangProj;
 /// </summary>
 public class RemoteTypeReflector
 {
+    private static readonly Logger logger =
+        LogManager.GetCurrentClassLogger();
+
     private AppDomain _secondaryAppDomain;
 
     /// <summary>
@@ -66,7 +71,7 @@ public class RemoteTypeReflector
         }
 
         RemoteWorker remoteWorker = null;
-        RemoteResponse<AssembliesNamespacesClasses> remoteResponse = null;
+        RemoteResponse<ClassInformationList> remoteResponse = null;
 
         try
         {
@@ -136,8 +141,7 @@ public class RemoteTypeReflector
                 {
                     UIUtilities.ShowExceptionMessage("Unable to Reflect Type",
                                                      String.Format("The following exception was returned. {0}",
-                                                             remoteResponse.CustomMessageAndException), string.Empty,
-                                                     remoteResponse.Exception.ToString());
+                                                             remoteResponse.CustomMessageAndException));
                 }
             }
             else
@@ -150,12 +154,12 @@ public class RemoteTypeReflector
         {
             UIUtilities.ShowExceptionMessage("File Not Found",
                                              String.Format("File not found.{0}{0}Have you built your application?{0}{0}{1}",
-                                                     Environment.NewLine, ex.Message), String.Empty, ex.ToString());
+                                                     Environment.NewLine, ex.Message));
         }
         catch (Exception ex)
         {
             UIUtilities.ShowExceptionMessage("Unable To Create Secondary AppDomain RemoteWorker",
-                                             ex.Message, String.Empty, ex.ToString());
+                                             ex.Message);
         }
         finally
         {
@@ -170,8 +174,8 @@ public class RemoteTypeReflector
                 }
                 catch (Exception ex)
                 {
-                    UIUtilities.ShowExceptionMessage("AppDomain.Unload Exception", ex.Message,
-                                                     String.Empty, ex.ToString());
+                    UIUtilities.ShowExceptionMessage("AppDomain.Unload Exception",
+                                                     ex.Message);
                 }
             }
             _secondaryAppDomain = null;
@@ -207,6 +211,8 @@ public class RemoteTypeReflector
 
     private string GetAssemblyInformation(Project TargetProject)
     {
+
+        logger.Trace("Entered GetAssemblyInformation()");
         if ((TargetProject.Kind == PrjKind.prjKindVBProject ||
                 TargetProject.Kind == PrjKind.prjKindCSharpProject) &&
                 !(PtHelpers.IsProjectBlackListed(PtHelpers.GetProjectTypeGuids(
@@ -232,7 +238,7 @@ public class RemoteTypeReflector
     /// <returns>
     ///     The class entities for selected project.
     /// </returns>
-    public AssembliesNamespacesClasses GetClassEntitiesForSelectedProject(
+    public ClassInformationList GetClassEntitiesForSelectedProject(
         Project TargetProject, string NameOfSourceCommand)
     {
         string assemblyPath = GetAssemblyInformation(TargetProject);
@@ -243,7 +249,7 @@ public class RemoteTypeReflector
         }
 
         RemoteWorker remoteWorker = null;
-        RemoteResponse<AssembliesNamespacesClasses> remoteResponse = null;
+        RemoteResponse<ClassInformationList> remoteResponse = null;
 
         try
         {
@@ -281,8 +287,7 @@ public class RemoteTypeReflector
                 {
                     UIUtilities.ShowExceptionMessage("Unable to Reflect Type",
                                                      "The following exception was returned. " +
-                                                     remoteResponse.CustomMessageAndException, string.Empty,
-                                                     remoteResponse.Exception.ToString());
+                                                     remoteResponse.CustomMessageAndException);
                 }
                 else if (remoteResponse.CustomMessage.IsNotNullOrEmpty())
                 {
@@ -301,12 +306,14 @@ public class RemoteTypeReflector
         {
             UIUtilities.ShowExceptionMessage("File Not Found",
                                              String.Format("File not found.{0}{0}Have you built your application?{0}{0}{1}",
-                                                     Environment.NewLine, ex.Message), String.Empty, ex.ToString());
+                                                     Environment.NewLine, ex.Message));
+            logger.Error("File not found in GetClassEntitiesForSelectedProject().");
         }
         catch (Exception ex)
         {
             UIUtilities.ShowExceptionMessage("Unable To Create Secondary AppDomain RemoteWorker",
-                                             ex.Message, String.Empty, ex.ToString());
+                                             ex.Message);
+            logger.Error("Unable To Create Secondary AppDomain RemoteWorker in GetClassEntitiesForSelectedProject().");
         }
         finally
         {
@@ -321,8 +328,10 @@ public class RemoteTypeReflector
                 }
                 catch (Exception ex)
                 {
-                    UIUtilities.ShowExceptionMessage("AppDomain.Unload Exception", ex.Message,
-                                                     String.Empty, ex.ToString());
+                    UIUtilities.ShowExceptionMessage("AppDomain.Unload Exception",
+                                                     ex.Message);
+                    logger.Debug("AppDomain.Unload Exception was raised in GetClassEntitiesForSelectedProject.",
+                                 ex);
                 }
             }
             _secondaryAppDomain = null;
@@ -338,6 +347,8 @@ public class RemoteTypeReflector
 
     private List<string> GetProjectReferences(Project TargetProject)
     {
+
+        logger.Trace("Entered GetProjectReferences()");
         var list = new List<string>();
         var vsProject = TargetProject.Object as VSProject;
 

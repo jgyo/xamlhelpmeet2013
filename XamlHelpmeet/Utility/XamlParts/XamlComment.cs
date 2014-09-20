@@ -7,12 +7,17 @@
 
 namespace XamlHelpmeet.Utility.XamlParts
 {
+using NLog;
+
 /// <summary>
 /// Xaml comment.
 /// </summary>
 /// <seealso cref="T:XamlHelpmeet.Utility.XamlParts.XamlPart"/>
 public class XamlComment : XamlPart
 {
+    private static readonly Logger logger =
+        LogManager.GetCurrentClassLogger();
+
     /// <summary>
     /// Initializes a new instance of the XamlComment class.
     /// </summary>
@@ -25,6 +30,8 @@ public class XamlComment : XamlPart
     public XamlComment(string text, int topPoint)
     : base(text, topPoint)
     {
+       
+       logger.Trace("Entered XamlComment()");
         // TODO: Complete XamlComment method in XamlComment
         // Extract comment from text with Regex expression.
     }

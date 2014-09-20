@@ -1,6 +1,6 @@
-﻿// file:	Commands\UI\ExtractSelectedPropertiesToStyleCommand.cs
+﻿// file:    Commands\UI\ExtractSelectedPropertiesToStyleCommand.cs
 //
-// summary:	Implements the extract selected properties to style command class
+// summary: Implements the extract selected properties to style command class
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,196 +9,230 @@ using System.Windows.Forms;
 using System.Xml;
 using EnvDTE;
 using EnvDTE80;
-using XamlHelpmeet.UI;
+
 using XamlHelpmeet.UI.ExtractPropertiesToStyle;
 using XamlHelpmeet.UI.Utilities;
 using XamlHelpmeet.Utility;
- using XamlHelpmeet.Extensions;
+using XamlHelpmeet.Extensions;
 using System.ComponentModel.Design;
 
 namespace XamlHelpmeet.Commands.UI
 {
-	/// <summary>
-	/// 	Extract selected properties to style command.
-	/// </summary>
-	/// <seealso cref="T:XamlHelpmeet.Commands.CommandBase"/>
-	public class ExtractSelectedPropertiesToStyleCommand : CommandBase
-	{
-		#region Fields
+using NLog;
 
-		private List<string> _addedNamespaces;
+/// <summary>
+///     Extract selected properties to style command.
+/// </summary>
+/// <seealso cref="T:XamlHelpmeet.Commands.CommandBase"/>
+public class ExtractSelectedPropertiesToStyleCommand : CommandBase
+{
+    /// <summary>
+    /// The logger.
+    /// </summary>
+    private static readonly Logger logger =
+        LogManager.GetCurrentClassLogger();
 
-		#endregion Fields
+    #region Fields
 
-		#region Constructors
+    private List<string> _addedNamespaces;
 
-		/// <summary>
-		/// Initializes a new instance of the ExtractSelectedPropertiesToStyleCommand
-		/// class.
-		/// </summary>
-		/// <param name="application">The application.</param>
-		/// <param name="id">The id.</param>
-		public ExtractSelectedPropertiesToStyleCommand(DTE2 application, CommandID id)
-			: base(application, id)
-		{
-			Caption = "Extract Properties to Style";
-			CommandName = "ExtractSelectedPropertiesToStyleCommand";
-			ToolTip = "Extract selected properties to style.";
-		}
+    #endregion Fields
 
-		#endregion Constructors
+    #region Constructors
 
-		#region Methods
+    /// <summary>
+    /// Initializes a new instance of the ExtractSelectedPropertiesToStyleCommand
+    /// class.
+    /// </summary>
+    /// <param name="application">The application.</param>
+    /// <param name="id">The id.</param>
+    public ExtractSelectedPropertiesToStyleCommand(DTE2 application,
+            CommandID id)
+    : base(application, id)
+    {
 
-		/// <summary>
-		/// 	Determine if we can execute.
-		/// </summary>
-		/// <param name="ExecuteOption">
-		/// 	The execute option.
-		/// </param>
-		/// <returns>
-		/// 	true if we can execute, otherwise false.
-		/// </returns>
-		public override bool CanExecute(vsCommandExecOption ExecuteOption)
-		{
-			return base.CanExecute(ExecuteOption) && IsTextSelected();
-		}
+        logger.Trace("Entered ExtractSelectedPropertiesToStyleCommand()");
+        Caption = "Extract Properties to Style";
+        CommandName = "ExtractSelectedPropertiesToStyleCommand";
+        ToolTip = "Extract selected properties to style.";
+    }
 
-		/// <summary>
-		/// 	Executes this ExtractSelectedPropertiesToStyleCommand.
-		/// </summary>
-		public override void Execute()
-		{
-			try
-			{
-				if (_addedNamespaces == null)
-				{
-					_addedNamespaces = new List<string>();
-				}
-				else
-				{
-					_addedNamespaces.Clear();
-				}
-				var selectedCodeBlock = Application.ActiveDocument.Selection as TextSelection;
-				var XAML = selectedCodeBlock.Text.Trim(WhiteSpaceCharacters);
-				var nameTable = new NameTable();
-				var nameSpaceManager = new XmlNamespaceManager(nameTable);
-				AddNameSpaces(XAML, nameSpaceManager);
+    #endregion Constructors
 
-				var xmlParseContext = new XmlParserContext(null, nameSpaceManager, null, XmlSpace.None);
-				var document = new XmlDocument();
-				document.PreserveWhitespace = true;
-				document.XmlResolver = null;
+    #region Methods
 
-				var xmlSettings = new XmlReaderSettings();
-				xmlSettings.ValidationFlags = System.Xml.Schema.XmlSchemaValidationFlags.None;
-				xmlSettings.ValidationType = ValidationType.None;
+    /// <summary>
+    ///     Determine if we can execute.
+    /// </summary>
+    /// <param name="ExecuteOption">
+    ///     The execute option.
+    /// </param>
+    /// <returns>
+    ///     true if we can execute, otherwise false.
+    /// </returns>
+    public override bool CanExecute(vsCommandExecOption ExecuteOption)
+    {
 
-				using (var reader = XmlReader.Create(new StringReader(XAML), xmlSettings, xmlParseContext))
-				{
-					document.Load(reader);
-				}
+        logger.Trace("Entered CanExecute()");
+        return base.CanExecute(ExecuteOption) && IsTextSelected();
+    }
 
-				var isSilverlight = PtHelpers.IsProjectSilverlight(PtHelpers.GetProjectTypeGuids(Application.SelectedItems.Item(1).ProjectItem.ContainingProject).Split(';'));
-				var silverlightVersion = string.Empty;
-				if (isSilverlight)
-				{
-					silverlightVersion = Application.ActiveDocument.ProjectItem.ContainingProject.Properties.Item("TargetFrameworkMoniker").Value.ToString().Replace("Silverlight,Version=v", String.Empty);
-				}
+    /// <summary>
+    ///     Executes this ExtractSelectedPropertiesToStyleCommand.
+    /// </summary>
+    public override void Execute()
+    {
 
-				var extractSelectedPropertiesToStyle = new ExtractSelectedPropertiesToStyleWindow(document, isSilverlight, silverlightVersion);
-				var result = extractSelectedPropertiesToStyle.ShowDialog();
+        logger.Trace("Entered Execute()");
+        try
+        {
+            if (_addedNamespaces == null)
+            {
+                _addedNamespaces = new List<string>();
+            }
+            else
+            {
+                _addedNamespaces.Clear();
+            }
+            var selectedCodeBlock = Application.ActiveDocument.Selection as
+                                    TextSelection;
+            var XAML = selectedCodeBlock.Text.Trim(WhiteSpaceCharacters);
+            var nameTable = new NameTable();
+            var nameSpaceManager = new XmlNamespaceManager(nameTable);
+            AddNameSpaces(XAML, nameSpaceManager);
 
-				if (result ?? false)
-				{
-					var sb = new StringBuilder(10240);
-					var writerSettings = new XmlWriterSettings()
-					{
-						Indent = true,
-						NewLineOnAttributes = false,
-						OmitXmlDeclaration = true
-					};
+            var xmlParseContext = new XmlParserContext(null, nameSpaceManager, null,
+                    XmlSpace.None);
+            var document = new XmlDocument();
+            document.PreserveWhitespace = true;
+            document.XmlResolver = null;
 
-					using (var writer = XmlWriter.Create(sb, writerSettings))
-					{
-						extractSelectedPropertiesToStyle.Document.Save(writer);
-					}
+            var xmlSettings = new XmlReaderSettings();
+            xmlSettings.ValidationFlags =
+                System.Xml.Schema.XmlSchemaValidationFlags.None;
+            xmlSettings.ValidationType = ValidationType.None;
 
-					foreach (string item in _addedNamespaces)
-					{
-						sb.Replace(item, string.Empty);
-					}
+            using (var reader = XmlReader.Create(new StringReader(XAML), xmlSettings,
+                                                 xmlParseContext))
+            {
+                document.Load(reader);
+            }
 
-					sb.Replace(" >", ">");
-					sb.Replace("    ", " ");
-					sb.Replace("   ", " ");
-					sb.Replace("  ", " ");
+            var isSilverlight = PtHelpers.IsProjectSilverlight(
+                                    PtHelpers.GetProjectTypeGuids(Application.SelectedItems.Item(
+                                                1).ProjectItem.ContainingProject).Split(';'));
+            var silverlightVersion = string.Empty;
+            if (isSilverlight)
+            {
+                silverlightVersion =
+                    Application.ActiveDocument.ProjectItem.ContainingProject.Properties.Item("TargetFrameworkMoniker").Value.ToString().Replace("Silverlight,Version=v",
+                            String.Empty);
+            }
 
-					var editPoint = selectedCodeBlock.TopPoint.CreateEditPoint();
-					selectedCodeBlock.Delete();
-					editPoint.Insert(sb.ToString());
-					sb.Length = 0;
+            var extractSelectedPropertiesToStyle = new
+            ExtractSelectedPropertiesToStyleWindow(document, isSilverlight,
+                                                   silverlightVersion);
+            var result = extractSelectedPropertiesToStyle.ShowDialog();
 
-					sb.AppendFormat(
-						isSilverlight ? "<Style TargetType=\"{0}\"" : "<Style TargetType=\"{{x:Type {0}}}\"",
-						extractSelectedPropertiesToStyle.TypeName);
+            if (result ?? false)
+            {
+                var sb = new StringBuilder(10240);
+                var writerSettings = new XmlWriterSettings()
+                {
+                    Indent = true,
+                    NewLineOnAttributes = false,
+                    OmitXmlDeclaration = true
+                };
 
-					sb.AppendFormat(extractSelectedPropertiesToStyle.StyleName.IsNotNullOrEmpty() ?
-						" x:Key=\"{0}\">" : ">",
-						extractSelectedPropertiesToStyle.StyleName
-						);
+                using (var writer = XmlWriter.Create(sb, writerSettings))
+                {
+                    extractSelectedPropertiesToStyle.Document.Save(writer);
+                }
 
-					sb.Append(Environment.NewLine);
+                foreach (string item in _addedNamespaces)
+                {
+                    sb.Replace(item, string.Empty);
+                }
 
-					foreach (var item in extractSelectedPropertiesToStyle.ExtractedProperties)
-					{
-						if (item.IsSelected)
-						{
-							sb.AppendFormat("<Setter Property=\"{0}\" Value=\"{1}\" />{2}", item.PropertyName, item.PropertyValue, Environment.NewLine);
-						}
-					}
+                sb.Replace(" >", ">");
+                sb.Replace("    ", " ");
+                sb.Replace("   ", " ");
+                sb.Replace("  ", " ");
 
-					sb.AppendLine("</Style>");
-					Clipboard.Clear();
-					Clipboard.SetText(sb.ToString());
-					UIUtilities.ShowInformationMessage("Paste Style", "Place insertion point and paste created style into the resource section of a XAML document.");
-				}
-			}
-			catch (XmlException ex)
-			{
-				UIUtilities.ShowExceptionMessage("Paste Style",
-					"Place insertion point and paste created style into the resource section of a XAML document.",
-					string.Empty,
-					ex.ToString());
-			}
-			catch (Exception ex)
-			{
-				UIUtilities.ShowExceptionMessage(Caption, ex.Message, string.Empty, ex.ToString());
-			}
-		}
+                var editPoint = selectedCodeBlock.TopPoint.CreateEditPoint();
+                selectedCodeBlock.Delete();
+                editPoint.Insert(sb.ToString());
+                sb.Length = 0;
 
-		/// <summary>
-		/// 	Gets the status.
-		/// </summary>
-		/// <returns>
-		/// 	The status.
-		/// </returns>
-		public override vsCommandStatus GetStatus()
-		{
-			// vsCommandStatus.vsCommandStatusUnsupported has a value
-			// of zero, so or'ing it with any other value returns the other
-			// value.
-			return vsCommandStatus.vsCommandStatusSupported |
-				(IsTextSelected() ?
-				vsCommandStatus.vsCommandStatusEnabled :
-				vsCommandStatus.vsCommandStatusUnsupported);
-		}
+                sb.AppendFormat(
+                    isSilverlight ? "<Style TargetType=\"{0}\"" :
+                    "<Style TargetType=\"{{x:Type {0}}}\"",
+                    extractSelectedPropertiesToStyle.TypeName);
 
-		private void AddNameSpaces(string XMLIn, XmlNamespaceManager NameSpaceManager)
-		{
-			AddNameSpaces(XMLIn, NameSpaceManager, _addedNamespaces);
-		}
+                sb.AppendFormat(
+                    extractSelectedPropertiesToStyle.StyleName.IsNotNullOrEmpty() ?
+                    " x:Key=\"{0}\">" : ">",
+                    extractSelectedPropertiesToStyle.StyleName
+                );
 
-		#endregion Methods
-	}
+                sb.Append(Environment.NewLine);
+
+                foreach (var item in extractSelectedPropertiesToStyle.ExtractedProperties)
+                {
+                    if (item.IsSelected)
+                    {
+                        sb.AppendFormat("<Setter Property=\"{0}\" Value=\"{1}\" />{2}",
+                                        item.PropertyName, item.PropertyValue, Environment.NewLine);
+                    }
+                }
+
+                sb.AppendLine("</Style>");
+                Clipboard.Clear();
+                Clipboard.SetText(sb.ToString());
+                UIUtilities.ShowInformationMessage("Paste Style",
+                                                   "Place insertion point and paste created style into the resource section of a XAML document.");
+            }
+        }
+        catch (XmlException ex)
+        {
+            UIUtilities.ShowExceptionMessage("Paste Style",
+                                             "Place insertion point and paste created style into the resource section of a XAML document.");
+            logger.Error("An XmlException was raised in Execute().", ex);
+        }
+        catch (Exception ex)
+        {
+            UIUtilities.ShowExceptionMessage(this.Caption, ex.Message);
+            logger.Error("An exception was raised in Execute().", ex);
+        }
+    }
+
+    /// <summary>
+    ///     Gets the status.
+    /// </summary>
+    /// <returns>
+    ///     The status.
+    /// </returns>
+    public override vsCommandStatus GetStatus()
+    {
+
+        logger.Trace("Entered GetStatus()");
+        // vsCommandStatus.vsCommandStatusUnsupported has a value
+        // of zero, so or'ing it with any other value returns the other
+        // value.
+        return vsCommandStatus.vsCommandStatusSupported |
+               (IsTextSelected() ?
+                vsCommandStatus.vsCommandStatusEnabled :
+                vsCommandStatus.vsCommandStatusUnsupported);
+    }
+
+    private void AddNameSpaces(string XMLIn,
+                               XmlNamespaceManager NameSpaceManager)
+    {
+
+        logger.Trace("Entered AddNameSpaces()");
+        AddNameSpaces(XMLIn, NameSpaceManager, _addedNamespaces);
+    }
+
+    #endregion Methods
+}
 }

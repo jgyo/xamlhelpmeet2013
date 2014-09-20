@@ -11,11 +11,19 @@ using System.Runtime.InteropServices;
 
 namespace XamlHelpmeet.Utility
 {
+using System.Collections.Generic;
+using System.Linq;
+
+using NLog;
+
 /// <summary>
 ///     Point helpers.
 /// </summary>
 public static class PtHelpers
 {
+    private static readonly Logger logger =
+        LogManager.GetCurrentClassLogger();
+
 
     private static Hashtable _blackListedProjectTypes;
 
@@ -30,9 +38,15 @@ public static class PtHelpers
     /// </returns>
     public static string GetAssemblyPath(Project Project)
     {
+        logger.Trace("Entered GetAssemblyPath()");
         var fullPath = Path.GetDirectoryName(Project.FullName);
         var outputPath =
             Project.ConfigurationManager.ActiveConfiguration.Properties.Item("OutputPath").Value.ToString();
+        if (fullPath == null)
+        {
+            throw new Exception("fullPath is null.");
+        }
+
         var outputDirectory = Path.Combine(fullPath, outputPath);
         var outputFileName =
             Project.Properties.Item("OutputFileName").Value.ToString();
@@ -61,18 +75,28 @@ public static class PtHelpers
     /// </returns>
     public static string GetProjectTypeGuids(Project Project)
     {
+
+        logger.Trace("Entered GetProjectTypeGuids()");
         var projectTypeGuids = string.Empty;
         object service = GetService(Project.DTE, typeof(IVsSolution));
         var ivsSolution = service as IVsSolution;
-        IVsHierarchy ivsHierarchy = null;
-        IVsAggregatableProject ivsAggregatableProject;
-        int result = ivsSolution.GetProjectOfUniqueName(Project.UniqueName,
-                     out ivsHierarchy);
-        if (result != 0)
-        { return projectTypeGuids; }
-        ivsAggregatableProject = ivsHierarchy as IVsAggregatableProject;
-        result = ivsAggregatableProject.GetAggregateProjectTypeGuids(
-                     out projectTypeGuids);
+        if (ivsSolution != null)
+        {
+            IVsHierarchy ivsHierarchy;
+            int result = ivsSolution.GetProjectOfUniqueName(Project.UniqueName,
+                         out ivsHierarchy);
+            if (result != 0)
+            {
+                return projectTypeGuids;
+            }
+
+            var ivsAggregatableProject = ivsHierarchy as IVsAggregatableProject;
+            if (ivsAggregatableProject != null)
+            {
+                result = ivsAggregatableProject.GetAggregateProjectTypeGuids(
+                             out projectTypeGuids);
+            }
+        }
         return projectTypeGuids;
     }
 
@@ -85,43 +109,59 @@ public static class PtHelpers
     /// <returns>
     ///     true if the project type is blacklisted, false if not.
     /// </returns>
-    public static bool IsProjectBlackListed(string[] aryGuids)
+    public static bool IsProjectBlackListed(IEnumerable<string> aryGuids)
     {
+
+        logger.Trace("Entered IsProjectBlackListed()");
         // Shifflett notes here: some are here because I have not
         // tested them, other because I don't want the add-in
         // trying to load web sites or test projects.
 
         if (_blackListedProjectTypes == null)
         {
-            _blackListedProjectTypes = new Hashtable();
-            _blackListedProjectTypes.Add("{349C5851-65DF-11DA-9384-00065B846F21}",
-                                         String.Empty); // Web Application
-            _blackListedProjectTypes.Add("{E24C65DC-7377-472B-9ABA-BC803B73C61A}",
-                                         String.Empty); // Web Site
-            _blackListedProjectTypes.Add("{C252FEB5-A946-4202-B1D4-9916A0590387}",
-                                         String.Empty); // Visual Database Tools
-            _blackListedProjectTypes.Add("{A9ACE9BB-CECE-4E62-9AA4-C7E7C5BD2124}",
-                                         String.Empty); // Database
-            _blackListedProjectTypes.Add("{4F174C21-8C12-11D0-8340-0000F80270F8}",
-                                         String.Empty); // Database other
-            _blackListedProjectTypes.Add("{3AC096D0-A1C2-E12C-1390-A8335801FDAB}",
-                                         String.Empty); // Test
-            _blackListedProjectTypes.Add("{D59BE175-2ED0-4C54-BE3D-CDAA9F3214C8}",
-                                         String.Empty); // Workflow VB
-            _blackListedProjectTypes.Add("{14822709-B5A1-4724-98CA-57A101D1B079}",
-                                         String.Empty); // Workflow C#
-            _blackListedProjectTypes.Add("{978C614F-708E-4E1A-B201-565925725DBA}",
-                                         String.Empty); // SET UP
+            _blackListedProjectTypes = new Hashtable
+            {
+                {
+                    "{349C5851-65DF-11DA-9384-00065B846F21}",
+                    String.Empty
+                },
+                {
+                    "{E24C65DC-7377-472B-9ABA-BC803B73C61A}",
+                    String.Empty
+                },
+                {
+                    "{C252FEB5-A946-4202-B1D4-9916A0590387}",
+                    String.Empty
+                },
+                {
+                    "{A9ACE9BB-CECE-4E62-9AA4-C7E7C5BD2124}",
+                    String.Empty
+                },
+                {
+                    "{4F174C21-8C12-11D0-8340-0000F80270F8}",
+                    String.Empty
+                },
+                {
+                    "{3AC096D0-A1C2-E12C-1390-A8335801FDAB}",
+                    String.Empty
+                },
+                {
+                    "{D59BE175-2ED0-4C54-BE3D-CDAA9F3214C8}",
+                    String.Empty
+                },
+                {
+                    "{14822709-B5A1-4724-98CA-57A101D1B079}",
+                    String.Empty
+                },
+                {
+                    "{978C614F-708E-4E1A-B201-565925725DBA}",
+                    String.Empty
+                }
+            };
         }
 
-        foreach (var item in aryGuids)
-        {
-            if (_blackListedProjectTypes.ContainsKey(item.ToUpper()))
-            {
-                return true;
-            }
-        }
-        return false;
+        return aryGuids.Any(item => _blackListedProjectTypes.ContainsKey(
+                                item.ToUpper()));
     }
 
     /// <summary>
@@ -133,28 +173,33 @@ public static class PtHelpers
     /// <returns>
     ///     true if the project is a Silverlight project, false if not.
     /// </returns>
-    public static bool IsProjectSilverlight(string[] aryGuids)
+    public static bool IsProjectSilverlight(IEnumerable<string> aryGuids)
     {
-        foreach (var item in aryGuids)
-        {
-            if (string.Compare("{A1591282-1198-4647-A2B1-27E5FF5F6F3B}", item,
-                               true) == 0)
-            { return true; }
-        }
-        return false;
+
+        logger.Trace("Entered IsProjectSilverlight()");
+        return aryGuids.Any(item =>
+                            System.String.Compare("{A1591282-1198-4647-A2B1-27E5FF5F6F3B}", item,
+                                    System.StringComparison.OrdinalIgnoreCase) == 0);
     }
 
 
     private static object GetService(DTE ServiceProvider, Guid GUID)
     {
+
+        logger.Trace("Entered GetService()");
         object service = null;
         var serviceProvider = ServiceProvider as
                               Microsoft.VisualStudio.OLE.Interop.IServiceProvider;
         IntPtr intPtr;
-        int hr;
         var sidGuid = GUID;
         var iidGuid = sidGuid;
-        hr = serviceProvider.QueryService(ref sidGuid, ref iidGuid, out intPtr);
+        if (serviceProvider == null)
+        {
+            throw new Exception("serviceProvider is null.");
+        }
+
+        int hr = serviceProvider.QueryService(ref sidGuid, ref iidGuid,
+                                              out intPtr);
         if (hr != 0)
         {
             Marshal.ThrowExceptionForHR(hr);
@@ -170,6 +215,8 @@ public static class PtHelpers
 
     private static object GetService(DTE serviceProvider, Type type)
     {
+
+        logger.Trace("Entered GetService()");
         return GetService(serviceProvider, type.GUID);
     }
 }

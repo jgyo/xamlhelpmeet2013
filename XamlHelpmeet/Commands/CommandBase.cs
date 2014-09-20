@@ -1,6 +1,6 @@
-﻿// file:	Commands\CommandBase.cs
+﻿// file:    Commands\CommandBase.cs
 //
-// summary:	Implements the command base class
+// summary: Implements the command base class
 
 using EnvDTE;
 using EnvDTE80;
@@ -18,417 +18,471 @@ using XamlHelpmeet.Extensions;
 
 namespace XamlHelpmeet.Commands
 {
-	/// <summary>
-	/// 	Command base.
-	/// </summary>
-	/// <seealso cref="T:System.IDisposable"/>
-	public abstract class CommandBase : OleMenuCommand, IDisposable
-	{
-		#region Fields
+using NLog;
 
-		private static readonly char[] _whiteSpaceCharacters = new char[] { '\r', '\n', '\t', ' ' };
-		private CommandBarControl _commandBaseCommandBarControl;
-		private bool _isDisposed;
+/// <summary>
+///     Command base.
+/// </summary>
+/// <seealso cref="T:System.IDisposable"/>
+public abstract class CommandBase : OleMenuCommand, IDisposable
+{
+    /// <summary>
+    /// The logger.
+    /// </summary>
+    private static readonly Logger logger =
+        LogManager.GetCurrentClassLogger();
 
-		#endregion Fields
+    #region Fields
 
-		#region Constructors and Distructors
+    private static readonly char[] whiteSpaceCharacters = { '\r', '\n', '\t', ' ' };
+    private CommandBarControl _commandBaseCommandBarControl;
+    private bool _isDisposed;
 
-		/// <summary>
-		/// Initializes a new instance of the CommandBase class.
-		/// </summary>
-		/// <param name="application">The application.</param>
-		/// <param name="id">The id.</param>
-		public CommandBase(DTE2 application, CommandID id)
-			: base(Execute, id)
-		{
-			this.Application = application;
-			this.BeforeQueryStatus += OnBeforeQueryStatus;
-		}
+    #endregion Fields
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="CommandBase" /> class.
-		/// </summary>
-		/// <param name="application">The application.</param>
-		/// <param name="id">The id.</param>
-		/// <param name="Text">The text.</param>
-		public CommandBase(DTE2 application, CommandID id, string Text)
-			: base(Execute, id, Text)
-		{
-			this.Application = application;
-		}
+    #region Constructors and Destructors
 
-		/// <summary>
-		/// 	Finalizes an instance of the CommandBase class.
-		/// </summary>
-		~CommandBase()
-		{
-			Dispose(false);
-		}
+    /// <summary>
+    /// Initializes a new instance of the CommandBase class.
+    /// </summary>
+    /// <param name="application">The application.</param>
+    /// <param name="id">The id.</param>
+    protected CommandBase(DTE2 application, CommandID id)
+    : base(Execute, id)
+    {
+        logger.Trace("Entered CommandBase()");
 
-		#endregion Constructors and Distructors
+        this.Application = application;
+        this.BeforeQueryStatus += OnBeforeQueryStatus;
+    }
 
-		/// <summary>
-		/// Executes before the query status is read.
-		/// </summary>
-		/// <param name="sender">The sender.</param>
-		/// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
-		/// <exception cref="System.ArgumentNullException">sender</exception>
-		protected virtual void OnBeforeQueryStatus(object sender, EventArgs e)
-		{
-			if (sender != this)
-			{
-				throw new ArgumentException("Only this should send calls to this.");
-			}
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CommandBase" /> class.
+    /// </summary>
+    /// <param name="application">The application.</param>
+    /// <param name="id">The id.</param>
+    /// <param name="Text">The text.</param>
+    protected CommandBase(DTE2 application, CommandID id, string Text)
+    : base(Execute, id, Text)
+    {
+        logger.Trace("Entered CommandBase()");
 
-			var status = GetStatus();
-			this.Enabled = status.HasFlag(vsCommandStatus.vsCommandStatusEnabled);
-			this.Supported = status.HasFlag(vsCommandStatus.vsCommandStatusSupported);
-			this.Visible = !status.HasFlag(vsCommandStatus.vsCommandStatusInvisible);
-		}
+        this.Application = application;
+    }
 
-		#region Properties
+    /// <summary>
+    ///     Finalizes an instance of the CommandBase class.
+    /// </summary>
+    ~CommandBase()
+    {
+        logger.Trace("Entered CommandBase::~CommandBase.");
 
-		/// <summary>
-		/// 	Gets or sets the caption.
-		/// </summary>
-		/// <value>
-		/// 	The caption.
-		/// </value>
-		public string Caption
-		{
-			get;
-			set;
-		}
+        Dispose(false);
+    }
 
-		/// <summary>
-		/// 	Gets or sets the name of the command.
-		/// </summary>
-		/// <value>
-		/// 	The name of the command.
-		/// </value>
-		public string CommandName
-		{
-			get;
-			set;
-		}
+    #endregion Constructors and Distructors
 
-		/// <summary>
-		/// 	Gets or sets the menu command.
-		/// </summary>
-		/// <value>
-		/// 	The menu command.
-		/// </value>
-		public OleMenuCommand MenuCommand
-		{
-			get;
-			set;
-		}
+    /// <summary>
+    /// Executes before the query status is read.
+    /// </summary>
+    /// <param name="sender">The sender.</param>
+    /// <param name="e">The <see cref="EventArgs" /> instance containing the event data.</param>
+    /// <exception cref="System.ArgumentNullException">sender</exception>
+    protected virtual void OnBeforeQueryStatus(object sender, EventArgs e)
+    {
+        logger.Trace("Entered CommandBase::OnBeforeQueryStatus.");
 
-		/// <summary>
-		/// 	Gets or sets the tool tip.
-		/// </summary>
-		/// <value>
-		/// 	The tool tip.
-		/// </value>
-		public string ToolTip
-		{
-			get;
-			set;
-		}
+        if (sender != this)
+        {
+            throw new ArgumentException("Only this should send calls to this.");
+        }
 
-		/// <summary>
-		/// 	Gets an array of white space characters consisting of CR, LF, TAB, and SPACE.
-		/// </summary>
-		/// <value>
-		/// 	The white space characters.
-		/// </value>
-		protected static char[] WhiteSpaceCharacters
-		{
-			get
-			{
-				return _whiteSpaceCharacters;
-			}
-		}
+        var status = GetStatus();
+        this.Enabled = status.HasFlag(vsCommandStatus.vsCommandStatusEnabled);
+        this.Supported = status.HasFlag(vsCommandStatus.vsCommandStatusSupported);
+        this.Visible = !status.HasFlag(vsCommandStatus.vsCommandStatusInvisible);
+    }
 
-		/// <summary>
-		/// 	Gets or sets the application.
-		/// </summary>
-		/// <value>
-		/// 	The application.
-		/// </value>
-		protected DTE2 Application
-		{
-			get;
-			set;
-		}
+    #region Properties
 
-		#endregion Properties
+    /// <summary>
+    ///     Gets or sets the caption.
+    /// </summary>
+    /// <value>
+    ///     The caption.
+    /// </value>
+    public string Caption
+    {
+        get;
+        set;
+    }
 
-		#region Methods
+    /// <summary>
+    ///     Gets or sets the name of the command.
+    /// </summary>
+    /// <value>
+    ///     The name of the command.
+    /// </value>
+    public string CommandName
+    {
+        get;
+        set;
+    }
 
-		/// <summary>
-		/// 	Determine if we can execute.
-		/// </summary>
-		/// <param name="executeOption">
-		/// 	The execute option.
-		/// </param>
-		/// <returns>
-		/// 	true if we can execute, otherwise false.
-		/// </returns>
-		public virtual bool CanExecute(vsCommandExecOption executeOption)
-		{
-			return executeOption == vsCommandExecOption.vsCommandExecOptionDoDefault;
-		}
+    /// <summary>
+    ///     Gets or sets the menu command.
+    /// </summary>
+    /// <value>
+    ///     The menu command.
+    /// </value>
+    public OleMenuCommand MenuCommand
+    {
+        get;
+        set;
+    }
 
-		/// <summary>
-		/// 	Executes this CommandBase.
-		/// </summary>
-		public abstract void Execute();
+    /// <summary>
+    ///     Gets or sets the tool tip.
+    /// </summary>
+    /// <value>
+    ///     The tool tip.
+    /// </value>
+    public string ToolTip
+    {
+        get;
+        set;
+    }
 
-		/// <summary>
-		/// 	Gets the status.
-		/// </summary>
-		/// <returns>
-		/// 	The status.
-		/// </returns>
-		public virtual vsCommandStatus GetStatus()
-		{
-			return vsCommandStatus.vsCommandStatusEnabled | vsCommandStatus.vsCommandStatusSupported;
-		}
+    /// <summary>
+    ///     Gets an array of white space characters consisting of CR, LF, TAB, and SPACE.
+    /// </summary>
+    /// <value>
+    ///     The white space characters.
+    /// </value>
+    protected static char[] WhiteSpaceCharacters
+    {
+        get
+        {
+            logger.Trace("Entered CommandBase::WhiteSpaceCharacters.");
 
-		/// <summary>
-		/// 	Adds a name spaces.
-		/// </summary>
-		/// <param name="xmlIn">
-		/// 	The XML in.
-		/// </param>
-		/// <param name="namespaceManager">
-		/// 	Manager for namespace.
-		/// </param>
-		/// <param name="addedNamespaces">
-		/// 	The added namespaces.
-		/// </param>
-		protected void AddNameSpaces(string xmlIn, XmlNamespaceManager namespaceManager, List<string> addedNamespaces)
-		{
-			var ht = new Hashtable();
-			var lastIndexFound = -1;
-			bool continueDo;
-			do
-			{
-				continueDo = false;
-				lastIndexFound = xmlIn.IndexOf(":", lastIndexFound + 1, StringComparison.Ordinal);
-				if (lastIndexFound <= -1)
-				{
-					break;
-				}
-				for (int i = lastIndexFound; i >= 0; i--)
-				{
-					if (xmlIn.Substring(i, 1) != " " && xmlIn.Substring(i, 1) != "<")
-						continue;
-					var nameSpace = xmlIn.Substring(i + 1, lastIndexFound - i - 1);
-					if (!ht.ContainsKey(nameSpace))
-					{
-						ht.Add(nameSpace, nameSpace);
-						namespaceManager.AddNamespace(nameSpace, String.Format(CultureInfo.InvariantCulture, "urn:{0}", nameSpace));
-						addedNamespaces.Add(String.Format("xmlns:{0}=\"urn:{0}\"", nameSpace));
-					}
+            return whiteSpaceCharacters;
+        }
+    }
 
-					// Shifflett's code had a "Continue Do" here, but C# does not
-					// support that construct. C#'s "continue" restarts the
-					// inner loop, which in this case is the for loop. By adding
-					// a "continueDo" flag I have implemented the same logic. (jgy)
-					continueDo = true;
-					break;
-				}
-			}
-			while (continueDo);
-		}
+    /// <summary>
+    ///     Gets or sets the application.
+    /// </summary>
+    /// <value>
+    ///     The application.
+    /// </value>
+    protected DTE2 Application
+    {
+        get;
+        set;
+    }
 
-		/// <summary>
-		/// 	Executes this CommandBase.
-		/// </summary>
-		private static void Execute(object sender, EventArgs e)
-		{
-			if (!(sender is CommandBase))
-			{
-				throw new ArgumentException("The sender object is not of Type CommandBase.");
-			}
-			(sender as CommandBase).Execute();
-		}
+    #endregion Properties
 
-		#endregion Methods
+    #region Methods
 
-		#region Helpers
+    /// <summary>
+    ///     Determine if we can execute.
+    /// </summary>
+    /// <param name="executeOption">
+    ///     The execute option.
+    /// </param>
+    /// <returns>
+    ///     true if we can execute, otherwise false.
+    /// </returns>
+    public virtual bool CanExecute(vsCommandExecOption executeOption)
+    {
+        logger.Trace("Entered CanExecute()");
 
-		/// <summary>
-		/// 	Group into.
-		/// </summary>
-		/// <param name="wrapperTop">
-		/// 	The wrapper top.
-		/// </param>
-		/// <param name="wrapperBottom">
-		/// 	The wrapper bottom.
-		/// </param>
-		protected void GroupInto(string wrapperTop, string wrapperBottom)
-		{
-			var selectedCodeBlock = Application.ActiveDocument.Selection as TextSelection;
-			selectedCodeBlock.Trim();
-			var vbCrLfArray = new string[] { Environment.NewLine };
-			var selectedLines = selectedCodeBlock.Text.Trim().Split(vbCrLfArray, StringSplitOptions.None);
-			selectedCodeBlock.Delete();
-			var sb = new StringBuilder(4096);
-			sb.AppendLine(wrapperTop);
-			foreach (string selectedLine in selectedLines)
-			{
-				sb.AppendLine(selectedLine);
-			}
-			sb.AppendLine(wrapperBottom);
-			selectedCodeBlock.ReplaceSelectedText(sb.ToString());
-		}
+        return executeOption == vsCommandExecOption.vsCommandExecOptionDoDefault;
+    }
 
-		/// <summary>
-		/// 	Queries if this CommandBase is text selected.
-		/// </summary>
-		/// <returns>
-		/// 	true if text selected, otherwise false.
-		/// </returns>
-		protected bool IsTextSelected()
-		{
-			if (Application.ActiveDocument == null || Application.ActiveDocument.Selection == null)
-				return false;
-			var ts = Application.ActiveDocument.Selection as TextSelection;
-			if (ts == null)
-				return false;
-			return ts.Text.Length > 0;
-		}
+    /// <summary>
+    ///     Executes this CommandBase.
+    /// </summary>
+    public abstract void Execute();
 
-		/// <summary>
-		/// 	Sets all rows and columns to automatic.
-		/// </summary>
-		/// <param name="sb">
-		/// 	The sb.
-		/// </param>
-		protected void SetAllRowsAndColumnsToAuto(StringBuilder sb)
-		{
-			SetDefinitionsToAuto(sb, "<RowDefinition Height=\"");
-			SetDefinitionsToAuto(sb, "<ColumnDefinition Width=\"");
+    /// <summary>
+    ///     Gets the status.
+    /// </summary>
+    /// <returns>
+    ///     The status.
+    /// </returns>
+    public virtual vsCommandStatus GetStatus()
+    {
+        logger.Trace("Entered GetStatus()");
 
-			sb.Replace("   ", " ").Replace("  ", " ");
-			sb.Replace(" >", ">");
-		}
+        // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
+        return vsCommandStatus.vsCommandStatusEnabled |
+               vsCommandStatus.vsCommandStatusSupported;
+    }
 
-		/// <summary>
-		/// 	Strip unwanted property.
-		/// </summary>
-		/// <param name="propertyToStrip">
-		/// 	The property to strip.
-		/// </param>
-		/// <param name="sb">
-		/// 	The sb.
-		/// </param>
-		protected void StripUnwantedProperty(string propertyToStrip, StringBuilder sb)
-		{
-			var marginIndex = 0;
-			var marginOpenIndex = 0;
-			var marginCloseIndex = 0;
+    /// <summary>
+    ///     Adds a name spaces.
+    /// </summary>
+    /// <param name="xmlIn">
+    ///     The XML in.
+    /// </param>
+    /// <param name="namespaceManager">
+    ///     Manager for namespace.
+    /// </param>
+    /// <param name="addedNamespaces">
+    ///     The added namespaces.
+    /// </param>
+    protected void AddNameSpaces(string xmlIn,
+                                 XmlNamespaceManager namespaceManager, List<string> addedNamespaces)
+    {
+        logger.Trace("Entered CommandBase::AddNameSpaces.");
 
-			//var marginsRemoved = false;	// This variable's value is never used
-			propertyToStrip += "=";
-			do
-			{
-				marginIndex = sb.ToString().IndexOf(propertyToStrip, StringComparison.InvariantCultureIgnoreCase);
-				if (marginIndex < 0)
-				{
-					break;
-				}
-				marginOpenIndex = sb.ToString().IndexOf((char)34, marginIndex);
-				if (marginOpenIndex <= marginIndex)
-				{
-					break;
-				}
-				marginCloseIndex = sb.ToString().IndexOf((char)34, marginOpenIndex + 1);
-				if (marginCloseIndex <= marginIndex)
-				{
-					break;
-				}
-				sb.Remove(marginIndex, marginCloseIndex - marginIndex + 1);
+        var ht = new Hashtable();
+        var lastIndexFound = -1;
+        bool continueDo;
+        do
+        {
+            continueDo = false;
+            lastIndexFound = xmlIn.IndexOf(":", lastIndexFound + 1,
+                                           StringComparison.Ordinal);
+            if (lastIndexFound <= -1)
+            {
+                break;
+            }
+            for (int i = lastIndexFound; i >= 0; i--)
+            {
+                if (xmlIn.Substring(i, 1) != " " && xmlIn.Substring(i, 1) != "<")
+                { continue; }
+                var nameSpace = xmlIn.Substring(i + 1, lastIndexFound - i - 1);
+                if (!ht.ContainsKey(nameSpace))
+                {
+                    ht.Add(nameSpace, nameSpace);
+                    namespaceManager.AddNamespace(nameSpace,
+                                                  String.Format(CultureInfo.InvariantCulture, "urn:{0}", nameSpace));
+                    addedNamespaces.Add(String.Format("xmlns:{0}=\"urn:{0}\"", nameSpace));
+                }
 
-				//marginsRemoved = true;	// value is never checked anywhere
-			}
-			while (true);
-			sb.Replace("   ", " ").Replace("  ", " ");
-			sb.Replace(" >", ">");
-		}
+                // Shifflett's code had a "Continue Do" here, but C# does not
+                // support that construct. C#'s "continue" restarts the
+                // inner loop, which in this case is the for loop. By adding
+                // a "continueDo" flag I have implemented the same logic. (jgy)
+                continueDo = true;
+                break;
+            }
+        }
+        while (continueDo);
+    }
 
-		private static void SetDefinitionsToAuto(StringBuilder sb, string definitionTag)
-		{
-			int index;
-			int openIndex = 0;
-			int closeIndex;
-			do
-			{
-				// Look for Definition tag.
-				index = sb.ToString().IndexOf(definitionTag, openIndex);
-				if (index < 0)
-				{
-					break;
-				}
+    /// <summary>
+    ///     Executes this CommandBase.
+    /// </summary>
+    private static void Execute(object sender, EventArgs e)
+    {
+        logger.Trace("Entered Execute()");
 
-				// Calculate location of first character inside " mark.
-				openIndex = index + definitionTag.Length;
+        if (!(sender is CommandBase))
+        {
+            throw new ArgumentException("The sender object is not of Type CommandBase.");
+        }
+        (sender as CommandBase).Execute();
+    }
 
-				// Look for next " mark.
-				closeIndex = sb.ToString().IndexOf((char)34, openIndex);
+    #endregion Methods
 
-				// Rmove text between " marks.
-				sb.Remove(openIndex, closeIndex - openIndex);
+    #region Helpers
 
-				// Replace that with "Auto."
-				sb.Insert(openIndex, "Auto");
-			}
-			while (true);
-		}
+    /// <summary>
+    ///     Group into.
+    /// </summary>
+    /// <param name="wrapperTop">
+    ///     The wrapper top.
+    /// </param>
+    /// <param name="wrapperBottom">
+    ///     The wrapper bottom.
+    /// </param>
+    protected void GroupInto(string wrapperTop, string wrapperBottom)
+    {
+        logger.Trace("Entered CommandBase::GroupInto.");
 
-		#endregion Helpers
+        var selectedCodeBlock = Application.ActiveDocument.Selection as
+                                TextSelection;
+        selectedCodeBlock.Trim();
+        var vbCrLfArray = new[] { Environment.NewLine };
+        if (selectedCodeBlock == null)
+        {
+            return;
+        }
 
-		#region Dispose Pattern Implementation
+        var selectedLines = selectedCodeBlock.Text.Trim().Split(vbCrLfArray,
+                            StringSplitOptions.None);
 
-		/// <summary>
-		/// 	Performs application-defined tasks associated with freeing, releasing, or
-		/// 	resetting unmanaged resources.
-		/// </summary>
-		/// <seealso cref="M:System.IDisposable.Dispose()"/>
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        selectedCodeBlock.Delete();
+        var sb = new StringBuilder(4096);
+        sb.AppendLine(wrapperTop);
+        foreach (string selectedLine in selectedLines)
+        {
+            sb.AppendLine(selectedLine);
+        }
+        sb.AppendLine(wrapperBottom);
 
-		/// <summary>
-		/// 	Performs application-defined tasks associated with freeing, releasing, or
-		/// 	resetting unmanaged resources.
-		/// </summary>
-		/// <param name="disposing">
-		/// 	true to release both managed and unmanaged resources; false to release only
-		/// 	unmanaged resources.
-		/// </param>
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!_isDisposed)
-			{
-				if (disposing)
-				{
-					if (_commandBaseCommandBarControl != null)
-					{
-						_commandBaseCommandBarControl.Delete();
-						_commandBaseCommandBarControl = null;
-					}
-				}
-			}
-			_isDisposed = true;
-		}
+        selectedCodeBlock.ReplaceSelectedText(sb.ToString());
+    }
 
-		#endregion Dispose Pattern Implementation
-	}
+    /// <summary>
+    ///     Queries if this CommandBase is text selected.
+    /// </summary>
+    /// <returns>
+    ///     true if text selected, otherwise false.
+    /// </returns>
+    protected bool IsTextSelected()
+    {
+        logger.Trace("Entered CommandBase::IsTextSelected.");
+
+        if (Application.ActiveDocument == null ||
+                Application.ActiveDocument.Selection == null)
+        { return false; }
+        var ts = Application.ActiveDocument.Selection as TextSelection;
+        if (ts == null)
+        { return false; }
+        return ts.Text.Length > 0;
+    }
+
+    /// <summary>
+    ///     Sets all rows and columns to automatic.
+    /// </summary>
+    /// <param name="sb">
+    ///     The sb.
+    /// </param>
+    protected void SetAllRowsAndColumnsToAuto(StringBuilder sb)
+    {
+        logger.Trace("Entered CommandBase::SetAllRowsAndColumnsToAuto.");
+
+        SetDefinitionsToAuto(sb, "<RowDefinition Height=\"");
+        SetDefinitionsToAuto(sb, "<ColumnDefinition Width=\"");
+
+        sb.Replace("   ", " ").Replace("  ", " ");
+        sb.Replace(" >", ">");
+    }
+
+    /// <summary>
+    ///     Strip unwanted property.
+    /// </summary>
+    /// <param name="propertyToStrip">
+    ///     The property to strip.
+    /// </param>
+    /// <param name="sb">
+    ///     The sb.
+    /// </param>
+    protected void StripUnwantedProperty(string propertyToStrip,
+                                         StringBuilder sb)
+    {
+        logger.Trace("Entered CommandBase::StripUnwantedProperty.");
+
+        //var marginsRemoved = false;   // This variable's value is never used
+        propertyToStrip += "=";
+        do
+        {
+            var marginIndex = sb.ToString().IndexOf(propertyToStrip,
+                                                    StringComparison.InvariantCultureIgnoreCase);
+            if (marginIndex < 0)
+            {
+                break;
+            }
+            var marginOpenIndex = sb.ToString().IndexOf((char)34, marginIndex);
+            if (marginOpenIndex <= marginIndex)
+            {
+                break;
+            }
+            var marginCloseIndex = sb.ToString().IndexOf((char)34,
+                                   marginOpenIndex + 1);
+            if (marginCloseIndex <= marginIndex)
+            {
+                break;
+            }
+            sb.Remove(marginIndex, marginCloseIndex - marginIndex + 1);
+
+            //marginsRemoved = true;    // value is never checked anywhere
+        }
+        while (true);
+        sb.Replace("   ", " ").Replace("  ", " ");
+        sb.Replace(" >", ">");
+    }
+
+    private static void SetDefinitionsToAuto(StringBuilder sb,
+            string definitionTag)
+    {
+        logger.Trace("Entered CommandBase::SetDefinitionsToAuto.");
+
+        int openIndex = 0;
+        do
+        {
+            // Look for Definition tag.
+            int index = sb.ToString().IndexOf(definitionTag, openIndex,
+                                              System.StringComparison.Ordinal);
+            if (index < 0)
+            {
+                break;
+            }
+
+            // Calculate location of first character inside " mark.
+            openIndex = index + definitionTag.Length;
+
+            // Look for next " mark.
+            int closeIndex = sb.ToString().IndexOf((char)34, openIndex);
+
+            // Remove text between " marks.
+            sb.Remove(openIndex, closeIndex - openIndex);
+
+            // Replace that with "Auto."
+            sb.Insert(openIndex, "Auto");
+        }
+        while (true);
+    }
+
+    #endregion Helpers
+
+    #region Dispose Pattern Implementation
+
+    /// <summary>
+    ///     Performs application-defined tasks associated with freeing, releasing, or
+    ///     resetting unmanaged resources.
+    /// </summary>
+    /// <seealso cref="M:System.IDisposable.Dispose()"/>
+    public void Dispose()
+    {
+        logger.Trace("Entered Dispose()");
+
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    ///     Performs application-defined tasks associated with freeing, releasing, or
+    ///     resetting unmanaged resources.
+    /// </summary>
+    /// <param name="disposing">
+    ///     true to release both managed and unmanaged resources; false to release only
+    ///     unmanaged resources.
+    /// </param>
+    protected virtual void Dispose(bool disposing)
+    {
+        logger.Trace("Entered CommandBase::Dispose.");
+
+        if (!_isDisposed)
+        {
+            if (disposing)
+            {
+                if (_commandBaseCommandBarControl != null)
+                {
+                    _commandBaseCommandBarControl.Delete();
+                    _commandBaseCommandBarControl = null;
+                }
+            }
+        }
+        _isDisposed = true;
+    }
+
+    #endregion Dispose Pattern Implementation
+}
 }

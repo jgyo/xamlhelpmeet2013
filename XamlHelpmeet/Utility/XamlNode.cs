@@ -12,6 +12,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+
+using NLog;
+
 using XamlHelpmeet.Extensions;
 using XamlHelpmeet.Utility.XamlParts;
 
@@ -23,6 +26,9 @@ using XamlHelpmeet.Utility.XamlParts;
 /// </summary>
 public class XamlNode
 {
+    private static readonly Logger logger =
+        LogManager.GetCurrentClassLogger();
+
     #region Fields
 
     /// <summary>
@@ -79,6 +85,8 @@ public class XamlNode
     /// </param>
     public XamlNode(string documentText)
     {
+
+        logger.Trace("Entered XamlNode()");
         // The document to be parsed for building a XamlNode tree.
         this.documentText = documentText;
         this.isRoot = true;
@@ -167,6 +175,8 @@ public class XamlNode
     /// </param>
     private XamlNode(XamlTag newStartTag, XamlNode parent)
     {
+
+        logger.Trace("Entered XamlNode()");
         if (newStartTag.TagType == XamlTagType.Unknown)
         {
             throw new ArgumentException("The startingTag given is invalid.",
@@ -284,12 +294,14 @@ public class XamlNode
         private set
         {
             this.documentText = value;
-            if (this.childrenContainer != null)
+            if (this.childrenContainer == null)
             {
-                foreach (var item in this.ChildrenContainer)
-                {
-                    item.DocumentText = value;
-                }
+                return;
+            }
+
+            foreach (var item in this.ChildrenContainer)
+            {
+                item.DocumentText = value;
             }
         }
     }
@@ -397,6 +409,8 @@ public class XamlNode
     /// </returns>
     public XamlNode GetChildNodeWithOffset(int offset)
     {
+
+        logger.Trace("Entered GetChildNodeWithOffset()");
         return this.ChildrenContainer.FirstOrDefault(child => offset >
                 child.TopPoint && offset <= child.BottomPoint);
     }
@@ -412,6 +426,8 @@ public class XamlNode
     /// </returns>
     public XamlNode GetCommonAncestor(XamlNode otherNode)
     {
+
+        logger.Trace("Entered GetCommonAncestor()");
         return (from ancestor in this.Ancestors
                 from othersAncestor in otherNode.Ancestors
                 where ancestor == othersAncestor
@@ -426,6 +442,8 @@ public class XamlNode
     /// </returns>
     public EditorPoints GetContentEndPoints()
     {
+
+        logger.Trace("Entered GetContentEndPoints()");
         int top = this.StartTag.BottomPoint + 1;
         int bottom = this.EndTag.TopPoint;
         string content = this.DocumentText.Substring(top, bottom - top);
@@ -492,6 +510,8 @@ public class XamlNode
     /// </returns>
     public XamlNode GetNodeWithOffset(int offset)
     {
+
+        logger.Trace("Entered GetNodeWithOffset()");
         if (offset <= this.TopPoint || offset >= this.BottomPoint)
         {
             // documentPoint is not in this node or its children.
@@ -522,6 +542,8 @@ public class XamlNode
     /// </returns>
     public XamlNode[] GetSelectedNodes(EditorPoints ep)
     {
+
+        logger.Trace("Entered GetSelectedNodes()");
         var nodes = new List<XamlNode>();
         if (this.IsSelected(ep))
         {
@@ -554,6 +576,8 @@ public class XamlNode
     /// </returns>
     public SpanType[] GetSpanTypes(int point1, int point2)
     {
+
+        logger.Trace("Entered GetSpanTypes()");
         int min = Math.Min(point1, point2);
         int max = Math.Max(point1, point2);
         var spanTypes = new List<SpanType>();
@@ -586,6 +610,8 @@ public class XamlNode
     /// </returns>
     public bool IsNodeWithin(int topPoint, int bottomPoint)
     {
+
+        logger.Trace("Entered IsNodeWithin()");
         return (this.TopPoint >= topPoint && this.BottomPoint <= bottomPoint);
     }
 
@@ -603,6 +629,8 @@ public class XamlNode
     /// </returns>
     private PositionAndNode GetBottomPointPositionAndNode(int bottomPoint)
     {
+
+        logger.Trace("Entered GetBottomPointPositionAndNode()");
         var pan = new PositionAndNode(this, bottomPoint);
 
         if (pan.Position != NodePosition.Content || !this.HasChildren)
@@ -635,6 +663,8 @@ public class XamlNode
     /// </returns>
     private SpanType GetSpanType(int point)
     {
+
+        logger.Trace("Entered GetSpanType()");
         if (point < this.TopPoint || point >= this.BottomPoint)
         {
             // Outside the root node
@@ -677,6 +707,8 @@ public class XamlNode
     /// </returns>
     private PositionAndNode GetTopPointPositionAndNode(int topPoint)
     {
+
+        logger.Trace("Entered GetTopPointPositionAndNode()");
         var pan = new PositionAndNode(this, topPoint);
 
         if (pan.Position != NodePosition.Content || !this.HasChildren)
@@ -709,6 +741,8 @@ public class XamlNode
     /// </returns>
     private bool IsSelected(EditorPoints ep)
     {
+
+        logger.Trace("Entered IsSelected()");
         return this.TopPoint >= ep.TopPoint - 1 &&
                this.BottomPoint <= ep.BottomPoint - 1;
     }
@@ -722,6 +756,10 @@ public class XamlNode
     /// <seealso cref="T:System.Collections.Generic.IComparer{System.Text.RegularExpressions.Match}"/>
     public class XamlTagMatchComparer : IComparer<Match>
     {
+        // ReSharper disable once MemberHidesStaticFromOuterClass
+        private static readonly Logger logger =
+            LogManager.GetCurrentClassLogger();
+
         #region IComparer<Match> Members
         /// <summary>
         /// Compares two Match objects to determine their relative ordering.
@@ -738,6 +776,8 @@ public class XamlNode
         /// </returns>
         public Int32 Compare(Match match1, Match match2)
         {
+
+            logger.Trace("Entered Compare()");
             bool preferMatch1 = match1.Groups["Attributes"].Success;
             int result = match1.Index.CompareTo(match2.Index);
             return result != 0 ? result : preferMatch1 ? 1 : -1;

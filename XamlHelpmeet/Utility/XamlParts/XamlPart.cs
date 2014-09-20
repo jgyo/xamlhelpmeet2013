@@ -7,11 +7,16 @@
 
 namespace XamlHelpmeet.Utility.XamlParts
 {
+using NLog;
+
 /// <summary>
 /// Xaml part.
 /// </summary>
 public abstract class XamlPart
 {
+    private static readonly Logger logger =
+        LogManager.GetCurrentClassLogger();
+
     /// <summary>
     /// The text.
     /// </summary>
@@ -38,6 +43,8 @@ public abstract class XamlPart
     /// </param>
     public XamlPart(string text, int topPoint)
     {
+       
+       logger.Trace("Entered XamlPart()");
         _text = text;
         _topPoint = topPoint;
         _bottomPoint = topPoint + text.Length;

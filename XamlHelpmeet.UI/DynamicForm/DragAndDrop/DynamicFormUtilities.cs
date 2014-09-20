@@ -9,174 +9,190 @@ using XamlHelpmeet.UI.Utilities;
 
 namespace XamlHelpmeet.UI.DynamicForm.DragAndDrop
 {
-	public class DynamicFormUtilities
-	{
-		public static FrameworkElement FindAncestor(Type AncestorType,
-										  Visual Visual)
-		{
-			while (Visual != null && !AncestorType.IsInstanceOfType(Visual))
-			{
-				Visual = (Visual)VisualTreeHelper.GetParent(Visual);
-			}
-			return Visual as FrameworkElement;
-		}
+using NLog;
 
-		public static FrameworkElement GetItemContainer(ItemsControl ItemsControl,
-														Visual BottomMostVisual)
-		{
-			FrameworkElement itemContainer = null;
+public class DynamicFormUtilities
+{
+    private static readonly Logger logger =
+        LogManager.GetCurrentClassLogger();
 
-			if (ItemsControl != null && BottomMostVisual != null && ItemsControl.Items.Count >= 1)
-			{
-				var firstContainer = ItemsControl.ItemContainerGenerator.ContainerFromIndex(0);
+    public static FrameworkElement FindAncestor(Type AncestorType,
+            Visual Visual)
+    {
+        while (Visual != null && !AncestorType.IsInstanceOfType(Visual))
+        {
+            Visual = (Visual)VisualTreeHelper.GetParent(Visual);
+        }
+        return Visual as FrameworkElement;
+    }
 
-				if (firstContainer == null)
-				{
-					return itemContainer;		// retyrn null;
-				}
+    public static FrameworkElement GetItemContainer(ItemsControl ItemsControl,
+            Visual BottomMostVisual)
+    {
+        FrameworkElement itemContainer = null;
 
-				itemContainer = DynamicFormUtilities.FindAncestor(firstContainer.GetType(),
-																  BottomMostVisual);
+        if (ItemsControl != null && BottomMostVisual != null &&
+                ItemsControl.Items.Count >= 1)
+        {
+            var firstContainer =
+                ItemsControl.ItemContainerGenerator.ContainerFromIndex(0);
 
-				if (itemContainer == null || itemContainer.DataContext == null)
-				{
-					return itemContainer;
-				}
+            if (firstContainer == null)
+            {
+                return itemContainer;       // retyrn null;
+            }
 
-				var itemContainerVerify = ItemsControl.ItemContainerGenerator.ContainerFromItem(itemContainer.
-				DataContext) as FrameworkElement;
+            itemContainer = DynamicFormUtilities.FindAncestor(
+                                firstContainer.GetType(),
+                                BottomMostVisual);
 
-				if (itemContainer != itemContainerVerify)
-				{
-					return null;
-				}
-			}
+            if (itemContainer == null || itemContainer.DataContext == null)
+            {
+                return itemContainer;
+            }
 
-			return itemContainer;
-		}
+            var itemContainerVerify =
+                ItemsControl.ItemContainerGenerator.ContainerFromItem(itemContainer.
+                        DataContext) as FrameworkElement;
 
-		public static bool HasVerticalOrientation(FrameworkElement ItemContainer)
-		{
-			if (ItemContainer != null)
-			{
-				var panel = VisualTreeHelper.GetParent(ItemContainer) as Panel;
-				var stackPanel = panel as StackPanel;
+            if (itemContainer != itemContainerVerify)
+            {
+                return null;
+            }
+        }
 
-				if (stackPanel != null)
-				{
-					return stackPanel.Orientation == Orientation.Vertical;
-				}
+        return itemContainer;
+    }
 
-				var wrapPanel = panel as WrapPanel;
-				if (wrapPanel != null)
-				{
-					return wrapPanel.Orientation == Orientation.Vertical;
-				}
-			}
+    public static bool HasVerticalOrientation(FrameworkElement ItemContainer)
+    {
+        logger.Trace("Entered HasVerticalOrientation()");
 
-			// Default orientation is vertical
-			return true;
-		}
+        if (ItemContainer != null)
+        {
+            var panel = VisualTreeHelper.GetParent(ItemContainer) as Panel;
+            var stackPanel = panel as StackPanel;
 
-		public static void InsertItemInItemsControl(ItemsControl itemsControl,
-													object itemToInsert,
-													int insertionIndex)
-		{
-			if (itemToInsert == null)
-			{
-				return;
-			}
+            if (stackPanel != null)
+            {
+                return stackPanel.Orientation == Orientation.Vertical;
+            }
 
-			var itemsSource = itemsControl.ItemsSource;
+            var wrapPanel = panel as WrapPanel;
+            if (wrapPanel != null)
+            {
+                return wrapPanel.Orientation == Orientation.Vertical;
+            }
+        }
 
-			if (itemsSource != null && itemToInsert is DynamicFormEditor)
-			{
-				var propertyName = ((itemToInsert as DynamicFormEditor).DataContext
-					as DynamicFormListBoxContent).BindingPath;
-				var collectionView = itemsControl.ItemsSource as CollectionView;
+        // Default orientation is vertical
+        return true;
+    }
 
-				if (collectionView != null)
-				{
-					foreach (PropertyInformation item in collectionView)
-					{
-						if (item.Name == propertyName)
-						{
-							item.HasBeenUsed = true;
-							break;
-						}
-						collectionView.Refresh();
-					}
-				}
-			}
-			else if (itemsSource == null && itemToInsert is PropertyInformation)
-			{
-				// this occurs when dragging from the left side field list
-				// to the form fields listings
-				itemsControl.Items.Insert(insertionIndex,
-					UIHelpers.DynamicFormEditorFactory(itemToInsert as
-				PropertyInformation));
-			}
-			else if (itemsSource == null && itemToInsert is DynamicFormEditor)
-			{
-				itemsControl.Items.Insert(insertionIndex,
-										  itemToInsert);
-			}
-		}
+    public static void InsertItemInItemsControl(ItemsControl itemsControl,
+            object itemToInsert,
+            int insertionIndex)
+    {
+        if (itemToInsert == null)
+        {
+            return;
+        }
 
-		public static bool IsInFirstHalf(FrameworkElement Container,
-										 Point ClickedPoint,
-										 bool HasVerticalOrientation)
-		{
-			if (HasVerticalOrientation)
-			{
-				return ClickedPoint.Y < (Container.ActualHeight / 2);
-			}
+        var itemsSource = itemsControl.ItemsSource;
 
-			return ClickedPoint.X < (Container.ActualWidth / 2);
-		}
+        if (itemsSource != null && itemToInsert is DynamicFormEditor)
+        {
+            var propertyName = ((itemToInsert as DynamicFormEditor).DataContext
+                                as DynamicFormListBoxContent).BindingPath;
+            var collectionView = itemsControl.ItemsSource as CollectionView;
 
-		public static bool IsMovementBigEnough(Point InitialMousePosition, Point CurrentMousePosition)
-		{
-			return (Math.Abs((double)CurrentMousePosition.X - InitialMousePosition.X) >= SystemParameters.
-			MinimumHorizontalDragDistance) || (Math.Abs((double)CurrentMousePosition.Y - InitialMousePosition
-			.Y) >= SystemParameters.MinimumVerticalDragDistance);
-		}
+            if (collectionView != null)
+            {
+                foreach (PropertyInformation item in collectionView)
+                {
+                    if (item.Name == propertyName)
+                    {
+                        item.HasBeenUsed = true;
+                        break;
+                    }
+                    collectionView.Refresh();
+                }
+            }
+        }
+        else if (itemsSource == null && itemToInsert is PropertyInformation)
+        {
+            // this occurs when dragging from the left side field list
+            // to the form fields listings
+            itemsControl.Items.Insert(insertionIndex,
+                                      UIHelpers.DynamicFormEditorFactory(itemToInsert as
+                                              PropertyInformation));
+        }
+        else if (itemsSource == null && itemToInsert is DynamicFormEditor)
+        {
+            itemsControl.Items.Insert(insertionIndex,
+                                      itemToInsert);
+        }
+    }
 
-		public static int RemoveItemFromItemsControl(ItemsControl ItemsControl, object ItemToRemove)
-		{
-			if (ItemToRemove == null)
-			{
-				return -1;
-			}
+    public static bool IsInFirstHalf(FrameworkElement Container,
+                                     Point ClickedPoint,
+                                     bool HasVerticalOrientation)
+    {
+        if (HasVerticalOrientation)
+        {
+            return ClickedPoint.Y < (Container.ActualHeight / 2);
+        }
 
-			var indexToBeRemoved = ItemsControl.Items.IndexOf(ItemToRemove);
+        return ClickedPoint.X < (Container.ActualWidth / 2);
+    }
 
-			if (indexToBeRemoved == -1)
-			{
-				return -1;
-			}
+    public static bool IsMovementBigEnough(Point InitialMousePosition,
+                                           Point CurrentMousePosition)
+    {
+        return (Math.Abs((double)CurrentMousePosition.X - InitialMousePosition.X)
+                >= SystemParameters.
+                MinimumHorizontalDragDistance) ||
+               (Math.Abs((double)CurrentMousePosition.Y - InitialMousePosition
+                         .Y) >= SystemParameters.MinimumVerticalDragDistance);
+    }
 
-			// We have the final index now.
+    public static int RemoveItemFromItemsControl(ItemsControl ItemsControl,
+            object ItemToRemove)
+    {
+        if (ItemToRemove == null)
+        {
+            return -1;
+        }
 
-			var itemsSource = ItemsControl.ItemsSource;
+        var indexToBeRemoved = ItemsControl.Items.IndexOf(ItemToRemove);
 
-			if (itemsSource != null && itemsSource.GetType().IsGenericType)
-			{
-				((PropertyInformation)ItemToRemove).HasBeenUsed = true;
-				var collectionView = CollectionViewSource.GetDefaultView(ItemsControl.ItemsSource) as
-				CollectionView;
-				if (collectionView != null)
-				{
-					collectionView.Refresh();
-				}
-				return indexToBeRemoved;
-			}
+        if (indexToBeRemoved == -1)
+        {
+            return -1;
+        }
 
-			if (itemsSource == null)
-			{
-				ItemsControl.Items.RemoveAt(indexToBeRemoved);
-			}
-			return indexToBeRemoved;
-		}
-	}
+        // We have the final index now.
+
+        var itemsSource = ItemsControl.ItemsSource;
+
+        if (itemsSource != null && itemsSource.GetType().IsGenericType)
+        {
+            ((PropertyInformation)ItemToRemove).HasBeenUsed = true;
+            var collectionView = CollectionViewSource.GetDefaultView(
+                                     ItemsControl.ItemsSource) as
+                                 CollectionView;
+            if (collectionView != null)
+            {
+                collectionView.Refresh();
+            }
+            return indexToBeRemoved;
+        }
+
+        if (itemsSource == null)
+        {
+            ItemsControl.Items.RemoveAt(indexToBeRemoved);
+        }
+        return indexToBeRemoved;
+    }
+}
 }

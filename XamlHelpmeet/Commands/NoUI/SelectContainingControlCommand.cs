@@ -27,12 +27,20 @@ using XamlHelpmeet.Extensions;
 
 namespace XamlHelpmeet.Commands.NoUI
 {
+using NLog;
+
 /// <summary>
-/// A select containing control command.
+/// The select containing control command.
 /// </summary>
 /// <seealso cref="T:XamlHelpmeet.Commands.CommandBase"/>
 public class SelectContainingControlCommand : CommandBase
 {
+    /// <summary>
+    /// The logger.
+    /// </summary>
+    private static readonly Logger logger =
+        LogManager.GetCurrentClassLogger();
+
     /// <summary>
     /// Initializes a new instance of the SelectContainingControlCommand
     /// class.
@@ -41,11 +49,13 @@ public class SelectContainingControlCommand : CommandBase
     /// The application.
     /// </param>
     /// <param name="id">
-    /// The id.
+    /// The command id.
     /// </param>
     public SelectContainingControlCommand(DTE2 application, CommandID id)
     : base(application, id)
     {
+        logger.Trace("Entered SelectContainingControlCommand()");
+
         Caption = "Select containing control";
         CommandName = "SelectContainingControlCommand";
         ToolTip = "Select the control that contains the cursor.";
@@ -58,6 +68,8 @@ public class SelectContainingControlCommand : CommandBase
     /// <seealso cref="M:XamlHelpmeet.Commands.CommandBase.Execute()"/>
     public override void Execute()
     {
+        logger.Trace("Entered Execute()");
+
         var selection = Application.ActiveDocument.Selection as TextSelection;
         var ep = selection.GetEditorPoints();
         if (!selection.SelectNodes())

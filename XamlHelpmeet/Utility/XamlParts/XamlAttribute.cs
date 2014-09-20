@@ -7,12 +7,17 @@
 
 namespace XamlHelpmeet.Utility.XamlParts
 {
+using NLog;
+
 /// <summary>
 /// Attribute for xaml.
 /// </summary>
 /// <seealso cref="T:XamlHelpmeet.Utility.XamlParts.XamlPart"/>
 public class XamlAttribute : XamlPart
 {
+    private static readonly Logger logger =
+        LogManager.GetCurrentClassLogger();
+
     /// <summary>
     /// Initializes a new instance of the XamlAttribute class.
     /// </summary>
@@ -31,6 +36,8 @@ public class XamlAttribute : XamlPart
     public XamlAttribute(string text, int topPoint, string name, string value)
     : base(text, topPoint)
     {
+       
+       logger.Trace("Entered XamlAttribute()");
         Value = value;
         Name = name;
     }

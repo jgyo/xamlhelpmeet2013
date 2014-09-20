@@ -7,12 +7,20 @@
 
 namespace XamlHelpmeet.Utility.XamlParts
 {
+using NLog;
+
 /// <summary>
 /// Xaml white space.
 /// </summary>
 /// <seealso cref="T:XamlHelpmeet.Utility.XamlParts.XamlPart"/>
 public class XamlWhiteSpace : XamlPart
 {
+    /// <summary>
+    /// The logger.
+    /// </summary>
+    private static readonly Logger logger =
+        LogManager.GetCurrentClassLogger();
+
     /// <summary>
     /// Initializes a new instance of the XamlWhiteSpace class.
     /// </summary>
@@ -25,7 +33,7 @@ public class XamlWhiteSpace : XamlPart
     public XamlWhiteSpace(string text, int topPoint)
     : base(text, topPoint)
     {
-
+        logger.Trace("Entered XamlWhiteSpace()");
     }
 }
 }

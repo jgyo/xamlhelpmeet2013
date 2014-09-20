@@ -25,12 +25,20 @@ using XamlHelpmeet.UI.Utilities;
 
 namespace XamlHelpmeet.Commands.NoUI
 {
+using NLog;
+
 /// <summary>
 /// Group into border with stack panel vertical root.
 /// </summary>
 /// <seealso cref="T:XamlHelpmeet.Commands.CommandBase"/>
 public class GroupIntoBorderWithStackPanelVerticalRoot : CommandBase
 {
+    /// <summary>
+    /// The logger.
+    /// </summary>
+    private static readonly Logger logger =
+        LogManager.GetCurrentClassLogger();
+
     #region Constructors
     /// <summary>
     /// Initializes a new instance of the
@@ -46,6 +54,8 @@ public class GroupIntoBorderWithStackPanelVerticalRoot : CommandBase
             CommandID id)
     : base(application, id)
     {
+        logger.Trace("Entered GroupIntoBorderWithStackPanelVerticalRoot::GroupIntoBorderWithStackPanelVerticalRoot.");
+
         Caption = "Border With Root StackPanel - Vertical";
         CommandName = "GroupIntoBorderWithStackPanelVerticalRoot";
         ToolTip = "Group selection into a border with root stackpanel vertical being added.";
@@ -67,6 +77,8 @@ public class GroupIntoBorderWithStackPanelVerticalRoot : CommandBase
     /// </returns>
     public override bool CanExecute(vsCommandExecOption executeOption)
     {
+        logger.Trace("Entered CanExecute()");
+
         return base.CanExecute(executeOption) && IsTextSelected();
     }
 
@@ -76,6 +88,8 @@ public class GroupIntoBorderWithStackPanelVerticalRoot : CommandBase
     /// <seealso cref="M:XamlHelpmeet.Commands.CommandBase.Execute()"/>
     public override void Execute()
     {
+        logger.Trace("Entered Execute()");
+
         try
         {
             GroupInto("<Border>\r\n<StackPanel>\r\n",
@@ -84,7 +98,9 @@ public class GroupIntoBorderWithStackPanelVerticalRoot : CommandBase
         catch (Exception ex)
         {
             UIUtilities.ShowExceptionMessage(String.Format("Group Into {0}", Caption),
-                                             ex.Message, String.Empty, ex.ToString());
+                                             ex.Message);
+            logger.Debug("An exception was raised in GroupIntoBorderWithStackPanelVerticalRoot::Execute.",
+                         ex);
         }
     }
 
@@ -94,6 +110,8 @@ public class GroupIntoBorderWithStackPanelVerticalRoot : CommandBase
     /// <seealso cref="M:XamlHelpmeet.Commands.CommandBase.GetStatus()"/>
     public override vsCommandStatus GetStatus()
     {
+        logger.Trace("Entered GetStatus()");
+
         // This will add vsCommandStatusEnabled to vsCommandStatusSupported,
         // if IsTextSelected() returns true. Otherwise or'ing with
         // vsCommandStatusUnsupported leaves vsCommandStatusSupported
