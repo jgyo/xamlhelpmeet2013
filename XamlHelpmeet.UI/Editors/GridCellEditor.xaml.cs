@@ -10,6 +10,8 @@ namespace XamlHelpmeet.UI.Editors
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Interaction logic for GridCellEditor.xaml.
 /// </summary>
@@ -17,7 +19,7 @@ using NLog;
 public partial class GridCellEditor : UserControl
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Fields
 

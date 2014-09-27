@@ -9,6 +9,8 @@ namespace XamlHelpmeet.Model
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Cell content.
 /// </summary>
@@ -17,7 +19,7 @@ using NLog;
 public class CellContent : INotifyPropertyChanged
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Fields
 

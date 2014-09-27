@@ -2,13 +2,15 @@
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     String extensions.
 /// </summary>
 public static class StringExtensions
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     /// <summary>
     ///     A char extension method that queries if a character is letter or digit.

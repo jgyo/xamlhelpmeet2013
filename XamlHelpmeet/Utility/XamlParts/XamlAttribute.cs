@@ -9,6 +9,8 @@ namespace XamlHelpmeet.Utility.XamlParts
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 /// Attribute for xaml.
 /// </summary>
@@ -16,7 +18,7 @@ using NLog;
 public class XamlAttribute : XamlPart
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     /// <summary>
     /// Initializes a new instance of the XamlAttribute class.
@@ -36,8 +38,8 @@ public class XamlAttribute : XamlPart
     public XamlAttribute(string text, int topPoint, string name, string value)
     : base(text, topPoint)
     {
-       
-       logger.Trace("Entered XamlAttribute()");
+
+        logger.Trace("Entered XamlAttribute()");
         Value = value;
         Name = name;
     }

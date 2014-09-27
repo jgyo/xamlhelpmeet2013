@@ -34,13 +34,15 @@ namespace XamlHelpmeet.UI.Utilities
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 /// A helper class for UI logic.
 /// </summary>
 public class UIHelpers
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     /// <summary>
     /// Query if 'Name' is microsoft assembly.

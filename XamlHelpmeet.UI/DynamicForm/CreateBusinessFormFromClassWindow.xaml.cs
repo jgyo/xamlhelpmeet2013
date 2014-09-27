@@ -22,6 +22,8 @@ using XamlHelpmeet.UI.Editors;
 using XamlHelpmeet.UI.Enums;
 using XamlHelpmeet.UI.UIControlFactory;
 
+using YoderZone.Extensions.NLog;
+
 #endregion
 
 /// <summary>
@@ -30,7 +32,7 @@ using XamlHelpmeet.UI.UIControlFactory;
 public partial class CreateBusinessFormFromClassWindow : Window
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Constants
 

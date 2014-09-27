@@ -4,11 +4,13 @@ namespace XamlHelpmeet.Model
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 [Serializable]
 public class SampleFormat
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     public string DataType { get; set; }
 

@@ -7,13 +7,15 @@ namespace XamlHelpmeet.UI.SelectClass
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 /// Interaction logic for SelectClassFromAssembliesWindow.xaml
 /// </summary>
 public partial class SelectClassFromAssembliesWindow : Window
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     private readonly CollectionView _assemblyNamespaceClassCollectionView;
 

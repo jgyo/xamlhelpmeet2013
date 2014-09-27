@@ -16,6 +16,8 @@ using NLog;
 
 using XamlHelpmeet.Extensions;
 
+using YoderZone.Extensions.NLog;
+
 #endregion
 
 /// <summary>
@@ -24,7 +26,7 @@ using XamlHelpmeet.Extensions;
 public static class XmlHelpers
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Constants
 
@@ -97,8 +99,8 @@ public static class XmlHelpers
     /// </returns>
     public static bool AreSiblingsSelected(this TextSelection selection)
     {
-       
-       logger.Trace("Entered AreSiblingsSelected()");
+
+        logger.Trace("Entered AreSiblingsSelected()");
         EditorPoints ep = GetEditorPoints(selection);
         if (ep.IsInvalid)
         {
@@ -282,8 +284,8 @@ public static class XmlHelpers
     /// </returns>
     public static bool SelectNode(this TextSelection selection)
     {
-       
-       logger.Trace("Entered SelectNode()");
+
+        logger.Trace("Entered SelectNode()");
         // Works only when the selected text is empty.
         if (!selection.IsEmpty)
         {
@@ -315,8 +317,8 @@ public static class XmlHelpers
     /// </returns>
     public static bool SelectNodes(this TextSelection selection)
     {
-       
-       logger.Trace("Entered SelectNodes()");
+
+        logger.Trace("Entered SelectNodes()");
         EditorPoints ep = GetEditorPoints(selection);
 
         // Find the nodes that are within or that contain the ends of the selection.
@@ -350,8 +352,8 @@ public static class XmlHelpers
     /// </returns>
     public static bool SelectParent(this TextSelection selection)
     {
-       
-       logger.Trace("Entered SelectParent()");
+
+        logger.Trace("Entered SelectParent()");
         EditorPoints ep = selection.GetEditorPoints();
         XamlNode[] nodes = _rootNode.GetSelectedNodes(ep);
         if (nodes == null || nodes == null)

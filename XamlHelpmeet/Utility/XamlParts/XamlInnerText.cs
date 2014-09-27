@@ -9,6 +9,8 @@ namespace XamlHelpmeet.Utility.XamlParts
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Xaml inner text.
 /// </summary>
@@ -16,7 +18,7 @@ using NLog;
 public class XamlInnerText : XamlPart
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     /// <summary>
     ///     Initializes a new instance of the XamlInnerText class.
@@ -34,9 +36,9 @@ public class XamlInnerText : XamlPart
     : base(text, topPoint)
     {
 
-   
 
-   logger.Trace("Entered XamlInnerText()");
+
+        logger.Trace("Entered XamlInnerText()");
 
     }
 }

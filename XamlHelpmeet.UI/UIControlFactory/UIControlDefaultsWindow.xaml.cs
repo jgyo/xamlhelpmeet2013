@@ -9,13 +9,15 @@ namespace XamlHelpmeet.UI
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 /// Interaction logic for UIControlDefaultsWindow.xaml
 /// </summary>
 public partial class UIControlDefaultsWindow : Window
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     public UIControlDefaultsWindow()
     {

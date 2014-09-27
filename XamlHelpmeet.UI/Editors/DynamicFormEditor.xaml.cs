@@ -12,6 +12,8 @@ using XamlHelpmeet.UI.DynamicForm;
 using XamlHelpmeet.UI.Enums;
 using XamlHelpmeet.UI.Utilities;
 
+using YoderZone.Extensions.NLog;
+
 #endregion
 
 /// <summary>
@@ -20,7 +22,7 @@ using XamlHelpmeet.UI.Utilities;
 public partial class DynamicFormEditor : UserControl
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Constructors
 

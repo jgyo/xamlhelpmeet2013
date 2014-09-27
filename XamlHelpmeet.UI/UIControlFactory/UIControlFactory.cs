@@ -19,6 +19,8 @@ using System.Linq;
 
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 /// Control factory.
 /// </summary>
@@ -28,7 +30,7 @@ public class UIControlFactory
     /// The logger.
     /// </summary>
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
 
     #region Constants

@@ -9,6 +9,8 @@ namespace XamlHelpmeet.Utility.XamlParts
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 /// Xaml white space.
 /// </summary>
@@ -19,7 +21,7 @@ public class XamlWhiteSpace : XamlPart
     /// The logger.
     /// </summary>
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     /// <summary>
     /// Initializes a new instance of the XamlWhiteSpace class.

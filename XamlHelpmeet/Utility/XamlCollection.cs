@@ -11,6 +11,8 @@ namespace XamlHelpmeet.Utility
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Collection of xaml nodes.
 /// </summary>
@@ -21,7 +23,7 @@ public sealed class XamlNodeCollection : LinkedList<XamlNode>
     /// The logger.
     /// </summary>
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     private readonly XamlNode _owner;
 
@@ -52,31 +54,5 @@ public sealed class XamlNodeCollection : LinkedList<XamlNode>
         }
     }
 
-}
-
-/// <summary>
-///     Xaml collection helper.
-/// </summary>
-public static class XamlCollectionHelper
-{
-    private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
-
-    /// <summary>
-    ///     An XamlCollection extension method that queries if 'target' is
-    ///     empty.
-    /// </summary>
-    /// <param name="target">
-    ///     The target to act on.
-    /// </param>
-    /// <returns>
-    ///     true if empty, otherwise false.
-    /// </returns>
-    public static bool IsEmpty(this XamlNodeCollection target)
-    {
-
-        logger.Trace("Entered IsEmpty()");
-        return target == null || target.Count == 0;
-    }
 }
 }

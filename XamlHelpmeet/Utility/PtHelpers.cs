@@ -16,13 +16,15 @@ using System.Linq;
 
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Point helpers.
 /// </summary>
 public static class PtHelpers
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
 
     private static Hashtable _blackListedProjectTypes;

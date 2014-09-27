@@ -11,6 +11,8 @@ namespace XamlHelpmeet.Commands.UI
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Control defaults command.
 /// </summary>
@@ -21,7 +23,7 @@ public class ControlDefaultsCommand : CommandBase
     /// The logger.
     /// </summary>
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Constructors
 

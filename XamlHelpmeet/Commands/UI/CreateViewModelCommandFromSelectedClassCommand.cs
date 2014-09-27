@@ -19,6 +19,8 @@ using XamlHelpmeet.UI.Utilities;
 using XamlHelpmeet.UI.ViewModelCreation;
 using XamlHelpmeet.Utility;
 
+using YoderZone.Extensions.NLog;
+
 #endregion
 
 /// <summary>
@@ -32,7 +34,7 @@ internal class CreateViewModelCommandFromSelectedClassCommand :
     /// The logger.
     /// </summary>
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Constructors
 

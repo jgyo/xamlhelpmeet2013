@@ -10,6 +10,8 @@ namespace XamlHelpmeet.Commands.UI
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Fields list from selected class command.
 /// </summary>
@@ -20,7 +22,7 @@ public class FieldsListFromSelectedClassCommand : CommandBase
     /// The logger.
     /// </summary>
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Constructors
 

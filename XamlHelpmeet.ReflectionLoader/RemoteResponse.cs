@@ -7,6 +7,8 @@ namespace XamlHelpmeet.ReflectionLoader
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /** =========================================================================
     <summary>
     Remote response.
@@ -22,7 +24,7 @@ using NLog;
 public class RemoteResponse<T>
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     private readonly ResponseStatus _responseStatus = ResponseStatus.Success;
     private readonly Exception _exception;

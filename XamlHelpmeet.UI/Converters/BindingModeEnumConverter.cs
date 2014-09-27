@@ -8,6 +8,8 @@ namespace XamlHelpmeet.UI.Converters
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Binding mode enum converter.
 /// </summary>
@@ -20,7 +22,7 @@ public class BindingModeEnumConverter
     /// The logger.
     /// </summary>
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region IValueConverter Members
 

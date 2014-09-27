@@ -7,6 +7,8 @@ using System.Windows.Input;
 
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 #endregion
 
 /// <summary>
@@ -15,7 +17,7 @@ using NLog;
 public class RelayCommand : ICommand
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Fields
 
@@ -154,7 +156,7 @@ public sealed class RelayCommand<T> : ICommand
     // ReSharper disable once UnusedMember.Local
     // ReSharper disable once StaticFieldInGenericType
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Fields
 

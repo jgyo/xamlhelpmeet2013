@@ -14,6 +14,8 @@ using NLog;
 using XamlHelpmeet.Extensions;
 using XamlHelpmeet.Model;
 
+using YoderZone.Extensions.NLog;
+
 #endregion
 
 /// <summary>
@@ -29,7 +31,7 @@ using XamlHelpmeet.Model;
 public class RemoteWorker : MarshalByRefObject
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Methods (public)
 

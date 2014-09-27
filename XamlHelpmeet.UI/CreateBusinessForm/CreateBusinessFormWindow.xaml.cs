@@ -8,6 +8,8 @@ namespace XamlHelpmeet.UI.CreateBusinessForm
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,6 +26,8 @@ using XamlHelpmeet.Model;
 using XamlHelpmeet.UI.Editors;
 using XamlHelpmeet.UI.UIControlFactory;
 
+using YoderZone.Extensions.NLog;
+
 #endregion
 
 /// <summary>
@@ -34,7 +38,7 @@ public partial class CreateBusinessFormWindow : Window,
     INotifyPropertyChanged
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Constants
 
@@ -178,7 +182,7 @@ public partial class CreateBusinessFormWindow : Window,
             }
             else
             {
-                this.AllColumnSize = value.Value.ToString();
+                this.AllColumnSize = value.Value.ToString(CultureInfo.InvariantCulture);
             }
         }
     }
@@ -288,7 +292,7 @@ public partial class CreateBusinessFormWindow : Window,
             }
             this._numberOfColumns = value;
             this.OnPropertyChanged("NumberOfColumns");
-            this.DefinedColumns = (value - 1).ToString();
+            this.DefinedColumns = (value - 1).ToString(CultureInfo.InvariantCulture);
         }
     }
 
@@ -309,7 +313,7 @@ public partial class CreateBusinessFormWindow : Window,
             }
             this._numberOfRows = value;
             this.OnPropertyChanged("NumberOfRows");
-            this.DefinedRows = (value - 1).ToString();
+            this.DefinedRows = (value - 1).ToString(CultureInfo.InvariantCulture);
         }
     }
 
@@ -340,7 +344,7 @@ public partial class CreateBusinessFormWindow : Window,
             }
             else
             {
-                this.AllRowSize = value.Value.ToString();
+                this.AllRowSize = value.Value.ToString(CultureInfo.InvariantCulture);
             }
         }
     }
@@ -364,7 +368,10 @@ public partial class CreateBusinessFormWindow : Window,
     /// </value>
     public List<GridLength> RowHeightsCollection
     {
-        get { return this._rowHeightsCollection; }
+        get
+        {
+            return this._rowHeightsCollection;
+        }
     }
 
     /// <summary>
@@ -417,7 +424,6 @@ public partial class CreateBusinessFormWindow : Window,
 
             // Create the values for the comboBox
             string nextString = string.Empty;
-            string currentString = string.Empty;
 
             for (int j = 0; j < ary.Length; j++)
             {
@@ -431,7 +437,7 @@ public partial class CreateBusinessFormWindow : Window,
                     ary[j] = nextString;
                     break;
                 }
-                currentString = ary[j];
+                string currentString = ary[j];
                 ary[j] = nextString;
                 nextString = currentString;
             }
@@ -551,11 +557,23 @@ public partial class CreateBusinessFormWindow : Window,
         var tb = sender as TextBlock;
         this.ColumnSizePopUp = this.FindResource("columnPopUp") as Popup;
 
-        this.ColumnSizePopUp.Tag = tb.Tag;
-        this.ColumnSizePopUp.StaysOpen = true;
-        this.ColumnSizePopUp.PlacementTarget = tb;
-        this.ColumnSizePopUp.VerticalOffset = -5;
-        this.ColumnSizePopUp.IsOpen = true;
+        var columnSizePopUp = this.ColumnSizePopUp;
+        if (columnSizePopUp != null)
+        {
+            if (tb != null)
+            {
+                columnSizePopUp.Tag = tb.Tag;
+                columnSizePopUp.StaysOpen = true;
+                columnSizePopUp.PlacementTarget = tb;
+            }
+
+            columnSizePopUp.VerticalOffset = -5;
+            columnSizePopUp.IsOpen = true;
+        }
+
+        //?+ TODO: Study use of DispatcherTimer to see how it is used here.
+        //-  It seems odd that there is nothing bound to the tick event of the DispacherTimers. I'm not
+        //-  sure, but I think without handling that event, this actually does nothing.
 
         this.ColumnSizePopupTimer = new DispatcherTimer { Interval = new TimeSpan(0, 0, 1) };
         this.ColumnSizePopupTimer.Start();
@@ -726,7 +744,8 @@ public partial class CreateBusinessFormWindow : Window,
         {
             return "Auto";
         }
-        return obj.IsStar ? "Star" : obj.Value.ToString();
+        return obj.IsStar ? "Star" : obj.Value.ToString(
+                   CultureInfo.InvariantCulture);
     }
 
     private void ResetLayout()
@@ -774,14 +793,9 @@ public partial class CreateBusinessFormWindow : Window,
         // User removed one or more rows or columns.
         if (index < numberOfItems)
         {
-            var removeList = new List<string>();
-            foreach (var s in this.GridCellCollection.Keys)
-            {
-                if (this.GetIntFromKey(s) > index)
-                {
-                    removeList.Add(s);
-                }
-            }
+            var removeList = this.GridCellCollection.Keys.Where(
+                                 s => this.GetIntFromKey(s) > index)
+                             .ToList();
             foreach (var s in removeList)
             {
                 this.GridCellCollection.Remove(s);
@@ -810,11 +824,18 @@ public partial class CreateBusinessFormWindow : Window,
         var tb = sender as TextBlock;
         this.RowSizePopUp = this.FindResource("rowPopUp") as Popup;
 
-        this.RowSizePopUp.Tag = tb.Tag;
-        this.RowSizePopUp.StaysOpen = true;
-        this.RowSizePopUp.PlacementTarget = tb;
-        this.RowSizePopUp.VerticalOffset = -5;
-        this.RowSizePopUp.IsOpen = true;
+        var rowSizePopUp = this.RowSizePopUp;
+        if (rowSizePopUp != null)
+        {
+            if (tb != null)
+            {
+                rowSizePopUp.Tag = tb.Tag;
+                rowSizePopUp.StaysOpen = true;
+                rowSizePopUp.PlacementTarget = tb;
+            }
+            rowSizePopUp.VerticalOffset = -5;
+            rowSizePopUp.IsOpen = true;
+        }
 
         this.RowSizePopupTimer = new DispatcherTimer { Interval = new TimeSpan(0, 0, 1) };
         this.RowSizePopupTimer.Start();
@@ -856,7 +877,6 @@ public partial class CreateBusinessFormWindow : Window,
     {
         logger.Trace("Entered SetDimension()");
 
-        int index;
         if (txt.Text.IsNullOrWhiteSpace())
         {
             return;
@@ -882,7 +902,8 @@ public partial class CreateBusinessFormWindow : Window,
             txt.Tag = null;
             return;
         }
-        index = (int)txt.Tag;
+
+        var index = (int)txt.Tag;
 
         List<TextBlock> TextBlockCollection;
         List<GridLength> GridLengthCollection;
@@ -898,7 +919,8 @@ public partial class CreateBusinessFormWindow : Window,
             GridLengthCollection = this.ColumnWidthsCollection;
         }
 
-        TextBlockCollection[index].Text = dimension.ToString();
+        TextBlockCollection[index].Text = dimension.ToString(
+                                              CultureInfo.InvariantCulture);
         GridLengthCollection[index] = new GridLength(dimension);
 
         //txt.Text = string.Empty;
@@ -916,7 +938,7 @@ public partial class CreateBusinessFormWindow : Window,
             return false;
         }
 
-        int index = -1;
+        int index;
         if (int.TryParse(tb.Text, out index) == false || index < 1 || index > 50)
         {
             MessageBox.Show(
@@ -971,7 +993,7 @@ public partial class CreateBusinessFormWindow : Window,
         var tb = sender as TextBox;
         int length;
 
-        if (!int.TryParse(tb.Text, out length) || length < 0)
+        if (tb == null || (!int.TryParse(tb.Text, out length) || length < 0))
         {
             MessageBox.Show(
                 String.Format(
@@ -1056,7 +1078,7 @@ public partial class CreateBusinessFormWindow : Window,
                 continue;
             }
             string height = obj.IsStar ? "*" : obj.IsAuto ? "Auto" :
-                            obj.Value.ToString();
+                            obj.Value.ToString(CultureInfo.InvariantCulture);
             sb.AppendFormat("\t\t<RowDefinition Height=\"{0}\" />\r\n", height);
         }
 
@@ -1072,7 +1094,7 @@ public partial class CreateBusinessFormWindow : Window,
                 continue;
             }
             string width = obj.IsStar ? "*" : obj.IsAuto ? "Auto" :
-                           obj.Value.ToString();
+                           obj.Value.ToString(CultureInfo.InvariantCulture);
             sb.AppendFormat("\t\t<ColumnDefinition Width=\"{0}\" />\r\n", width);
         }
 
@@ -1111,7 +1133,8 @@ public partial class CreateBusinessFormWindow : Window,
         sb.AppendLine("</Grid>");
         this.BusinessForm = sb.ToString();
 
-        if (this.BusinessForm.IndexOf("CHAGEME") > -1)
+        if (this.BusinessForm.IndexOf("CHAGEME",
+                                      System.StringComparison.Ordinal) > -1)
         {
             this.BusinessForm =
                 string.Concat("\r\n\t<!-- Search for and change all instances of CHANGEME -->\r\n",
@@ -1170,6 +1193,11 @@ public partial class CreateBusinessFormWindow : Window,
             SelectionChangedEventArgs e)
     {
         var cbo = sender as ComboBox;
+        if (cbo == null)
+        {
+            logger.Error("Sender is not a ComboBox.");
+            throw new ArgumentException("sender is not a ComboBox.");
+        }
         var columnIndex = (int)cbo.Tag;
 
         if (cbo.SelectedValue.ToString() == "Select")

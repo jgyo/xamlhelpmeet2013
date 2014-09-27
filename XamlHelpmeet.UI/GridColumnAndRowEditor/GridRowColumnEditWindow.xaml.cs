@@ -14,6 +14,8 @@ using System.Xml;
 
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 #endregion
 
 /// <summary>
@@ -22,7 +24,7 @@ using NLog;
 public partial class GridRowColumnEditWindow : Window
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Constructors
 

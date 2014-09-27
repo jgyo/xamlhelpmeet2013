@@ -13,13 +13,15 @@ namespace XamlHelpmeet.Extensions
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Text selection extensions.
 /// </summary>
 public static class TextSelectionExtensions
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     /// <summary>
     ///     A TextSelection extension method that sets a selection.

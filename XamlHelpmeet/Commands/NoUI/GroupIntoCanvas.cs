@@ -12,6 +12,8 @@ namespace XamlHelpmeet.Commands.NoUI
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Group into canvas.
 /// </summary>
@@ -22,7 +24,7 @@ public class GroupIntoCanvas : CommandBase
     /// The logger.
     /// </summary>
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Constructors
 

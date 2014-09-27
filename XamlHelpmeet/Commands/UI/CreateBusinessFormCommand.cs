@@ -15,6 +15,8 @@ namespace XamlHelpmeet.Commands.UI
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Create business form command.
 /// </summary>
@@ -25,7 +27,7 @@ public class CreateBusinessFormCommand : CommandBase
     /// The logger.
     /// </summary>
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Constructors
 

@@ -20,6 +20,8 @@ namespace XamlHelpmeet.Commands
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Command base.
 /// </summary>
@@ -30,7 +32,7 @@ public abstract class CommandBase : OleMenuCommand, IDisposable
     /// The logger.
     /// </summary>
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Fields
 

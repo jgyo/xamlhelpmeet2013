@@ -15,6 +15,8 @@ using NLog;
 using XamlHelpmeet.Model;
 using XamlHelpmeet.UI.UIControlFactory;
 
+using YoderZone.Extensions.NLog;
+
 #endregion
 
 /// <summary>
@@ -24,7 +26,7 @@ using XamlHelpmeet.UI.UIControlFactory;
 public partial class FieldsListWindow
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Fields
 

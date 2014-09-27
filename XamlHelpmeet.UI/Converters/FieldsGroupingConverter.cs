@@ -9,6 +9,8 @@ namespace XamlHelpmeet.UI.Converters
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Fields grouping converter.
 /// </summary>
@@ -17,7 +19,7 @@ using NLog;
 public class FieldsGroupingConverter : IValueConverter
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region IValueConverter Members
 

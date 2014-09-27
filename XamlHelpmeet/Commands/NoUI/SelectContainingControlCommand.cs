@@ -29,6 +29,8 @@ namespace XamlHelpmeet.Commands.NoUI
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 /// The select containing control command.
 /// </summary>
@@ -39,7 +41,7 @@ public class SelectContainingControlCommand : CommandBase
     /// The logger.
     /// </summary>
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     /// <summary>
     /// Initializes a new instance of the SelectContainingControlCommand

@@ -13,6 +13,8 @@ namespace XamlHelpmeet.UI.Editors
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Interaction logic for TextBlockEditor.xaml.
 /// </summary>
@@ -20,7 +22,7 @@ using NLog;
 public partial class TextBlockEditor : UserControl
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     /// <summary>
     ///     Initializes a new instance of the TextBlockEditor class.

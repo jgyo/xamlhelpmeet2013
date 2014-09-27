@@ -15,6 +15,8 @@ namespace XamlHelpmeet.Commands.UI
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Create form list view data grid from selected class command.
 /// </summary>
@@ -26,7 +28,7 @@ public class CreateFormListViewDataGridFromSelectedClassCommand :
     /// The logger.
     /// </summary>
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     /// <summary>
     /// Initializes a new instance of the

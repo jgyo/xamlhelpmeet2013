@@ -4,13 +4,15 @@ namespace XamlHelpmeet.UI.Editors
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 /// Interaction logic for LabelEditor.xaml
 /// </summary>
 public partial class LabelEditor : UserControl
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     public LabelEditor()
     {

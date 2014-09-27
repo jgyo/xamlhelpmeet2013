@@ -16,6 +16,8 @@ using XamlHelpmeet.Extensions;
 using XamlHelpmeet.UI.Commands;
 using XamlHelpmeet.UI.UIControlFactory;
 
+using YoderZone.Extensions.NLog;
+
 #endregion
 
 /// <summary>
@@ -24,7 +26,7 @@ using XamlHelpmeet.UI.UIControlFactory;
 public partial class CreateCommandWindow : Window, INotifyPropertyChanged
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Fields
 

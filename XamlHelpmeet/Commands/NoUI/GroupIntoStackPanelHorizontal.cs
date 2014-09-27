@@ -12,6 +12,8 @@ namespace XamlHelpmeet.Commands.NoUI
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Group into stack panel horizontal.
 /// </summary>
@@ -19,7 +21,7 @@ using NLog;
 public class GroupIntoStackPanelHorizontal : CommandBase
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Constructors
 

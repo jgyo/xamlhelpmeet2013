@@ -9,13 +9,15 @@ namespace XamlHelpmeet.Utility.XamlParts
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 /// Xaml part.
 /// </summary>
 public abstract class XamlPart
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     /// <summary>
     /// The text.
@@ -43,8 +45,8 @@ public abstract class XamlPart
     /// </param>
     public XamlPart(string text, int topPoint)
     {
-       
-       logger.Trace("Entered XamlPart()");
+
+        logger.Trace("Entered XamlPart()");
         _text = text;
         _topPoint = topPoint;
         _bottomPoint = topPoint + text.Length;

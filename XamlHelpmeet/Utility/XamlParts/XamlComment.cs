@@ -9,6 +9,8 @@ namespace XamlHelpmeet.Utility.XamlParts
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 /// Xaml comment.
 /// </summary>
@@ -16,7 +18,7 @@ using NLog;
 public class XamlComment : XamlPart
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     /// <summary>
     /// Initializes a new instance of the XamlComment class.
@@ -30,10 +32,10 @@ public class XamlComment : XamlPart
     public XamlComment(string text, int topPoint)
     : base(text, topPoint)
     {
-       
-       logger.Trace("Entered XamlComment()");
+        logger.Trace("Entered XamlComment()");
+
         // TODO: Complete XamlComment method in XamlComment
-        // Extract comment from text with Regex expression.
+        // Extract comment from text with regular expression.
     }
 
     /// <summary>

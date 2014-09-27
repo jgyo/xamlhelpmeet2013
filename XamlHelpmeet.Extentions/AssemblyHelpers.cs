@@ -5,6 +5,8 @@ namespace XamlHelpmeet.Extensions
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Assembly helpers.
 /// </summary>
@@ -16,7 +18,7 @@ using NLog;
 public static class AssemblyHelpers
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     /// <summary>
     ///     A string extension method that queries if 'AssemblyName' is

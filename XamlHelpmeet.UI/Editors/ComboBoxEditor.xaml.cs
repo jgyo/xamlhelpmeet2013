@@ -7,13 +7,15 @@ namespace XamlHelpmeet.UI.Editors
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 /// Interaction logic for ComboBoxEditor.xaml
 /// </summary>
 public partial class ComboBoxEditor : UserControl
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     public ComboBoxEditor()
     {

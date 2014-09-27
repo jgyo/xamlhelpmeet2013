@@ -7,10 +7,12 @@ namespace XamlHelpmeet.UI.DynamicForm
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 public class DynamicFormListBoxContent : INotifyPropertyChanged
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     /************************************ FIELDS **********************************/
     private int _width;

@@ -7,13 +7,15 @@ namespace XamlHelpmeet.UI.Editors
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 /// Interaction logic for DatePickerEditor.xaml
 /// </summary>
 public partial class DatePickerEditor : UserControl
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     public DatePickerEditor()
     {

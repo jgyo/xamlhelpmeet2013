@@ -5,10 +5,12 @@ namespace XamlHelpmeet.UI.ValidationRules
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 public class RequiredEntryValidationRule : ValidationRule
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     public override ValidationResult Validate(object value,
             System.Globalization.CultureInfo cultureInfo)

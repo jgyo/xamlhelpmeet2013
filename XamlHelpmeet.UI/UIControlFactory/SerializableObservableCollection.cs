@@ -10,6 +10,8 @@ namespace XamlHelpmeet.UI.UIControlFactory
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /*
     I added this class in order to implement serialization on the ControlProperties
     property in UIControl since I could not successfully translate Shifflett's code
@@ -33,7 +35,7 @@ public class SerializableObservableCollection<T> :
     ObservableCollection<T>, INotifyPropertyChanged
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     [field: NonSerialized]
     private PropertyChangedEventHandler _propertyChangedEventHandler;

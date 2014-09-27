@@ -12,6 +12,8 @@ namespace XamlHelpmeet.Commands.NoUI
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Group into grid.
 /// </summary>
@@ -19,7 +21,7 @@ using NLog;
 public class GroupIntoGrid : CommandBase
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Constructors
 

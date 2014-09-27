@@ -10,6 +10,8 @@ namespace XamlHelpmeet.UI.Converters
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Property type name converter.
 /// </summary>
@@ -22,7 +24,7 @@ public class PropertyTypeNameConverter
     /// The logger.
     /// </summary>
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region IValueConverter Members
 

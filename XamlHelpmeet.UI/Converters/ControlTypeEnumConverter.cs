@@ -9,6 +9,8 @@ namespace XamlHelpmeet.UI.Converters
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     ControlType enum converter.
 /// </summary>
@@ -21,7 +23,7 @@ using NLog;
 public class ControlTypeEnumConverter : IValueConverter
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region IValueConverter Members
 

@@ -11,6 +11,8 @@ namespace XamlHelpmeet.UI.DynamicForm.DragAndDrop
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Dragged adorner.
 /// </summary>
@@ -18,7 +20,7 @@ using NLog;
 public class DraggedAdorner : Adorner
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Properties
 

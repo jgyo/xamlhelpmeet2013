@@ -27,6 +27,8 @@ namespace XamlHelpmeet.Commands.NoUI
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 /// Group into border with stack panel vertical root.
 /// </summary>
@@ -37,7 +39,7 @@ public class GroupIntoBorderWithStackPanelVerticalRoot : CommandBase
     /// The logger.
     /// </summary>
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Constructors
     /// <summary>

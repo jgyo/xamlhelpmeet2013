@@ -26,6 +26,8 @@ using XamlHelpmeet.Extensions;
 using XamlHelpmeet.Model;
 using XamlHelpmeet.UI.Commands;
 
+using YoderZone.Extensions.NLog;
+
 #endregion
 
 /// <summary>Interaction logic for CreateViewModelWindow.xaml.</summary>
@@ -35,7 +37,7 @@ using XamlHelpmeet.UI.Commands;
 public partial class CreateViewModelWindow : INotifyPropertyChanged
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Fields
 

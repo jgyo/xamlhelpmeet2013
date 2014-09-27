@@ -7,13 +7,15 @@ namespace XamlHelpmeet.UI.Editors
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 /// Interaction logic for DynamicFormComboBoxEditor.xaml
 /// </summary>
 public partial class DynamicFormComboBoxEditor : UserControl
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     public DynamicFormComboBoxEditor()
     {

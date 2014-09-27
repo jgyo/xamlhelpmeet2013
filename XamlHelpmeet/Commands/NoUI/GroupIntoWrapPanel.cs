@@ -12,6 +12,8 @@ namespace XamlHelpmeet.Commands.NoUI
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Panel for editing the group into wrap.
 /// </summary>
@@ -19,7 +21,7 @@ using NLog;
 public class GroupIntoWrapPanel : CommandBase
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Constructors
 
@@ -71,7 +73,8 @@ public class GroupIntoWrapPanel : CommandBase
         }
         catch (Exception ex)
         {
-            UIUtilities.ShowExceptionMessage("Group Into " + this.Caption, ex.Message);
+            UIUtilities.ShowExceptionMessage("Group Into " + this.Caption,
+                                             ex.Message);
             logger.Error("An exception was raised in Execute().", ex);
         }
     }

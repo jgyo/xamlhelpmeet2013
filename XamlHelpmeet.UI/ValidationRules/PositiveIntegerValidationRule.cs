@@ -6,10 +6,12 @@ namespace XamlHelpmeet.UI.ValidationRules
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 public class PositiveIntegerValidationRule : ValidationRule
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     public override ValidationResult Validate(object value,
             CultureInfo cultureInfo)

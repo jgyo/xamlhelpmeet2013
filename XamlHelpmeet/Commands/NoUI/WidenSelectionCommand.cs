@@ -31,6 +31,8 @@ using NLog;
 using XamlHelpmeet.UI.Utilities;
 using XamlHelpmeet.Utility;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 /// A widen selection command.
 /// </summary>
@@ -38,7 +40,7 @@ using XamlHelpmeet.Utility;
 public class WidenSelectionCommand : CommandBase
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     /// <summary>
     /// Initializes a new instance of the WiddenSelection class.
@@ -52,8 +54,8 @@ public class WidenSelectionCommand : CommandBase
     public WidenSelectionCommand(DTE2 application, CommandID id)
     : base(application, id)
     {
-       
-       logger.Trace("Entered WidenSelectionCommand()");
+
+        logger.Trace("Entered WidenSelectionCommand()");
         Caption = "Widen Selection";
         CommandName = "WiddenSelection";
         ToolTip = "Widen selection to containing tag.";
@@ -66,8 +68,8 @@ public class WidenSelectionCommand : CommandBase
     /// <seealso cref="M:XamlHelpmeet.Commands.CommandBase.Execute()"/>
     public override void Execute()
     {
-       
-       logger.Trace("Entered Execute()");
+
+        logger.Trace("Entered Execute()");
         var selectedCodeBlock = Application.ActiveDocument.Selection as
                                 TextSelection;
         var result = selectedCodeBlock.ExpandSelection();

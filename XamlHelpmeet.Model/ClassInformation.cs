@@ -23,6 +23,8 @@ namespace XamlHelpmeet.Model
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 /// Assemblies namespaces class.
 /// </summary>
@@ -30,7 +32,7 @@ using NLog;
 public class ClassInformation
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     /// <summary>
     /// Initializes a new instance of the ClassInformation class.

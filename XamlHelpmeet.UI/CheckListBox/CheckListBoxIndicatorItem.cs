@@ -8,10 +8,12 @@ namespace XamlHelpmeet.UI.CheckListBox
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 public class CheckListBoxIndicatorItem
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     /// <summary>
     ///     Gets or sets the related list box item.

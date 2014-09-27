@@ -6,6 +6,8 @@ namespace XamlHelpmeet.Model
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Class entity.
 /// </summary>
@@ -15,7 +17,7 @@ using NLog;
 public class ClassEntity : INotifyPropertyChanged
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     private ObservableCollection<PropertyInformation> _propertyInformation;
     private string _className = string.Empty;

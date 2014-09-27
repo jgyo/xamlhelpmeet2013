@@ -12,6 +12,8 @@ using System.Text.RegularExpressions;
 
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 #endregion
 
 /// <summary>
@@ -20,7 +22,7 @@ using NLog;
 public class NodeEndMatches
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Fields
 

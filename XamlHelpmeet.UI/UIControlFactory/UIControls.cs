@@ -11,6 +11,8 @@ namespace XamlHelpmeet.UI.UIControlFactory
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Controls.
 /// </summary>
@@ -19,7 +21,7 @@ using NLog;
 public class UIControls : ObservableCollection<UIControl>
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Properties
 

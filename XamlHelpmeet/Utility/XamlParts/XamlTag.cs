@@ -27,6 +27,8 @@ using System.Linq;
 
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 /// An XAML tag.
 /// </summary>
@@ -34,7 +36,7 @@ using NLog;
 public class XamlTag : XamlPart
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     /// <summary>
     /// Initializes a new instance of the

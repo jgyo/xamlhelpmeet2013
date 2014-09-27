@@ -18,6 +18,8 @@ using NLog;
 using XamlHelpmeet.Extensions;
 using XamlHelpmeet.Utility.XamlParts;
 
+using YoderZone.Extensions.NLog;
+
 #endregion
 
 /// <summary>
@@ -27,7 +29,7 @@ using XamlHelpmeet.Utility.XamlParts;
 public class XamlNode
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Fields
 
@@ -216,20 +218,20 @@ public class XamlNode
             this.ChildrenContainer.AddLast(childNode);
         }
 
-        // the end of tags represent the end of xaml tags. Since this builds a
-        // child, it should never reach this point.
+// the end of tags represent the end of xaml tags. Since this builds a
+// child, it should never reach this point.
         throw new ApplicationException("Premature end of tags encountered.");
     }
 
     #endregion
 
     #region Properties and Indexers
-    /// <summary>
-    /// Gets the ancestors.
-    /// </summary>
-    /// <value>
-    /// The ancestors.
-    /// </value>
+/// <summary>
+/// Gets the ancestors.
+/// </summary>
+/// <value>
+/// The ancestors.
+/// </value>
     public IEnumerable<XamlNode> Ancestors
     {
         get
@@ -245,34 +247,34 @@ public class XamlNode
         }
     }
 
-    /// <summary>
-    /// Gets the attributes.
-    /// </summary>
-    /// <value>
-    /// The attributes.
-    /// </value>
+/// <summary>
+/// Gets the attributes.
+/// </summary>
+/// <value>
+/// The attributes.
+/// </value>
     public IReadOnlyList<XamlAttribute> Attributes
     {
         get { return this.startTag.GetAttributes(); }
     }
 
-    /// <summary>
-    /// Gets the bottom point.
-    /// </summary>
-    /// <value>
-    /// The bottom point.
-    /// </value>
+/// <summary>
+/// Gets the bottom point.
+/// </summary>
+/// <value>
+/// The bottom point.
+/// </value>
     public int BottomPoint
     {
         get { return this.endTag == null ? int.MaxValue : this.endTag.BottomPoint; }
     }
 
-    /// <summary>
-    /// Gets the children container.
-    /// </summary>
-    /// <value>
-    /// The children container.
-    /// </value>
+/// <summary>
+/// Gets the children container.
+/// </summary>
+/// <value>
+/// The children container.
+/// </value>
     public XamlNodeCollection ChildrenContainer
     {
         get
@@ -282,12 +284,12 @@ public class XamlNode
         }
     }
 
-    /// <summary>
-    /// Gets the document text.
-    /// </summary>
-    /// <value>
-    /// The document text.
-    /// </value>
+/// <summary>
+/// Gets the document text.
+/// </summary>
+/// <value>
+/// The document text.
+/// </value>
     public string DocumentText
     {
         get { return this.documentText.IsNullOrWhiteSpace() ? string.Empty : this.documentText; }
@@ -306,107 +308,107 @@ public class XamlNode
         }
     }
 
-    /// <summary>
-    /// Gets the end tag.
-    /// </summary>
-    /// <value>
-    /// The end tag.
-    /// </value>
+/// <summary>
+/// Gets the end tag.
+/// </summary>
+/// <value>
+/// The end tag.
+/// </value>
     public XamlTag EndTag { get { return this.endTag; } }
 
-    /// <summary>
-    /// Gets a value indicating whether this XamlNode has children.
-    /// </summary>
-    /// <value>
-    /// true if this XamlNode has children, otherwise false.
-    /// </value>
+/// <summary>
+/// Gets a value indicating whether this XamlNode has children.
+/// </summary>
+/// <value>
+/// true if this XamlNode has children, otherwise false.
+/// </value>
     public bool HasChildren
     {
         get { return !this.ChildrenContainer.IsEmpty(); }
     }
 
-    /// <summary>
-    /// Gets a value indicating whether this XamlNode is root.
-    /// </summary>
-    /// <value>
-    /// true if this XamlNode is root, otherwise false.
-    /// </value>
+/// <summary>
+/// Gets a value indicating whether this XamlNode is root.
+/// </summary>
+/// <value>
+/// true if this XamlNode is root, otherwise false.
+/// </value>
     public bool IsRoot
     {
         get { return this.isRoot; }
     }
 
-    /// <summary>
-    /// Gets a value indicating whether this XamlHelpmeet.Utility.XamlNode is
-    /// self closing.
-    /// </summary>
-    /// <value>
-    /// true if this XamlHelpmeet.Utility.XamlNode is self closing, false if
-    /// not.
-    /// </value>
+/// <summary>
+/// Gets a value indicating whether this XamlHelpmeet.Utility.XamlNode is
+/// self closing.
+/// </summary>
+/// <value>
+/// true if this XamlHelpmeet.Utility.XamlNode is self closing, false if
+/// not.
+/// </value>
     public bool IsSelfClosing { get { return this.startTag == this.endTag; } }
 
-    /// <summary>
-    /// Gets the name.
-    /// </summary>
-    /// <value>
-    /// The name.
-    /// </value>
+/// <summary>
+/// Gets the name.
+/// </summary>
+/// <value>
+/// The name.
+/// </value>
     public string Name
     {
         get { return this.startTag.Name; }
     }
 
-    /// <summary>
-    /// Gets the parent.
-    /// </summary>
-    /// <value>
-    /// The parent.
-    /// </value>
+/// <summary>
+/// Gets the parent.
+/// </summary>
+/// <value>
+/// The parent.
+/// </value>
     public XamlNode Parent
     {
         get { return this.parent; }
     }
 
-    /// <summary>
-    /// Gets the siblings of this node.
-    /// </summary>
-    /// <value>
-    /// The siblings.
-    /// </value>
+/// <summary>
+/// Gets the siblings of this node.
+/// </summary>
+/// <value>
+/// The siblings.
+/// </value>
     public XamlNodeCollection Siblings
     {
         get { return this.Parent == null ? null : this.Parent.ChildrenContainer; }
     }
 
-    /// <summary>
-    /// Gets the start tag.
-    /// </summary>
-    /// <value>
-    /// The start tag.
-    /// </value>
+/// <summary>
+/// Gets the start tag.
+/// </summary>
+/// <value>
+/// The start tag.
+/// </value>
     public XamlTag StartTag { get { return this.startTag; } }
 
-    /// <summary>
-    /// Gets the top point.
-    /// </summary>
-    /// <value>
-    /// The top point.
-    /// </value>
+/// <summary>
+/// Gets the top point.
+/// </summary>
+/// <value>
+/// The top point.
+/// </value>
     public int TopPoint { get { return this.startTag == null ? 0 : this.startTag.TopPoint; } }
 
     #endregion
 
     #region Methods (public)
-    /// <summary>
-    /// Gets a child node with offset.
-    /// </summary>
-    /// <param name="offset">
-    /// The offset.
-    /// </param>
-    /// <returns>
-    /// The child node with offset.
-    /// </returns>
+/// <summary>
+/// Gets a child node with offset.
+/// </summary>
+/// <param name="offset">
+/// The offset.
+/// </param>
+/// <returns>
+/// The child node with offset.
+/// </returns>
     public XamlNode GetChildNodeWithOffset(int offset)
     {
 
@@ -415,15 +417,15 @@ public class XamlNode
                 child.TopPoint && offset <= child.BottomPoint);
     }
 
-    /// <summary>
-    /// Gets the common ancestor of this item and one other.
-    /// </summary>
-    /// <param name="otherNode">
-    /// The other node.
-    /// </param>
-    /// <returns>
-    /// The common ancestor.
-    /// </returns>
+/// <summary>
+/// Gets the common ancestor of this item and one other.
+/// </summary>
+/// <param name="otherNode">
+/// The other node.
+/// </param>
+/// <returns>
+/// The common ancestor.
+/// </returns>
     public XamlNode GetCommonAncestor(XamlNode otherNode)
     {
 
@@ -434,12 +436,12 @@ public class XamlNode
                 select ancestor).FirstOrDefault();
     }
 
-    /// <summary>
-    /// Gets content end points.
-    /// </summary>
-    /// <returns>
-    /// The content end points.
-    /// </returns>
+/// <summary>
+/// Gets content end points.
+/// </summary>
+/// <returns>
+/// The content end points.
+/// </returns>
     public EditorPoints GetContentEndPoints()
     {
 
@@ -458,24 +460,24 @@ public class XamlNode
                                             this.DocumentText);
     }
 
-    /// <summary>
-    /// This method should return a tupple with two nodes without fail (if it
-    /// is called through the root node). The first node should be the node
-    /// in which the topPoint falls, if it falls within one of it's tags,
-    /// after the last tag of its last child, if it has no children. The
-    /// second node should be the node in which the bottom point falls, if it
-    /// falls within one of its tags, before the first tag of its first child,
-    /// or if it has no children.
-    /// </summary>
-    /// <param name="topPoint">
-    /// The top point.
-    /// </param>
-    /// <param name="bottomPoint">
-    /// The bottom point.
-    /// </param>
-    /// <returns>
-    /// The first last nodes between points.
-    /// </returns>
+/// <summary>
+/// This method should return a tupple with two nodes without fail (if it
+/// is called through the root node). The first node should be the node
+/// in which the topPoint falls, if it falls within one of it's tags,
+/// after the last tag of its last child, if it has no children. The
+/// second node should be the node in which the bottom point falls, if it
+/// falls within one of its tags, before the first tag of its first child,
+/// or if it has no children.
+/// </summary>
+/// <param name="topPoint">
+/// The top point.
+/// </param>
+/// <param name="bottomPoint">
+/// The bottom point.
+/// </param>
+/// <returns>
+/// The first last nodes between points.
+/// </returns>
     public Tuple<XamlNode, XamlNode> GetFirstLastNodesBetweenPoints(
         int topPoint, int bottomPoint)
     {
@@ -499,15 +501,15 @@ public class XamlNode
         return new Tuple<XamlNode, XamlNode>(node1, node2);
     }
 
-    /// <summary>
-    /// Gets node with offset.
-    /// </summary>
-    /// <param name="offset">
-    /// The document point.
-    /// </param>
-    /// <returns>
-    /// The node with offset.
-    /// </returns>
+/// <summary>
+/// Gets node with offset.
+/// </summary>
+/// <param name="offset">
+/// The document point.
+/// </param>
+/// <returns>
+/// The node with offset.
+/// </returns>
     public XamlNode GetNodeWithOffset(int offset)
     {
 
@@ -531,15 +533,15 @@ public class XamlNode
         return this;
     }
 
-    /// <summary>
-    /// Gets selected nodes.
-    /// </summary>
-    /// <param name="ep">
-    /// The ep.
-    /// </param>
-    /// <returns>
-    /// An array of XAML node.
-    /// </returns>
+/// <summary>
+/// Gets selected nodes.
+/// </summary>
+/// <param name="ep">
+/// The ep.
+/// </param>
+/// <returns>
+/// An array of XAML node.
+/// </returns>
     public XamlNode[] GetSelectedNodes(EditorPoints ep)
     {
 
@@ -562,18 +564,18 @@ public class XamlNode
                .FirstOrDefault(nodeArry => nodeArry != null);
     }
 
-    /// <summary>
-    /// Gets span types.
-    /// </summary>
-    /// <param name="point1">
-    /// The first point.
-    /// </param>
-    /// <param name="point2">
-    /// The second point.
-    /// </param>
-    /// <returns>
-    /// An array of span type.
-    /// </returns>
+/// <summary>
+/// Gets span types.
+/// </summary>
+/// <param name="point1">
+/// The first point.
+/// </param>
+/// <param name="point2">
+/// The second point.
+/// </param>
+/// <returns>
+/// An array of span type.
+/// </returns>
     public SpanType[] GetSpanTypes(int point1, int point2)
     {
 
@@ -596,18 +598,18 @@ public class XamlNode
         return spanTypes.ToArray();
     }
 
-    /// <summary>
-    /// Query if 'topPoint' is node within.
-    /// </summary>
-    /// <param name="topPoint">
-    /// The top point.
-    /// </param>
-    /// <param name="bottomPoint">
-    /// The bottom point.
-    /// </param>
-    /// <returns>
-    /// true if node within, false if not.
-    /// </returns>
+/// <summary>
+/// Query if 'topPoint' is node within.
+/// </summary>
+/// <param name="topPoint">
+/// The top point.
+/// </param>
+/// <param name="bottomPoint">
+/// The bottom point.
+/// </param>
+/// <returns>
+/// true if node within, false if not.
+/// </returns>
     public bool IsNodeWithin(int topPoint, int bottomPoint)
     {
 
@@ -618,15 +620,15 @@ public class XamlNode
     #endregion
 
     #region Methods (private)
-    /// <summary>
-    /// Gets bottom point position and node.
-    /// </summary>
-    /// <param name="bottomPoint">
-    /// The bottom point.
-    /// </param>
-    /// <returns>
-    /// The bottom point position and node.
-    /// </returns>
+/// <summary>
+/// Gets bottom point position and node.
+/// </summary>
+/// <param name="bottomPoint">
+/// The bottom point.
+/// </param>
+/// <returns>
+/// The bottom point position and node.
+/// </returns>
     private PositionAndNode GetBottomPointPositionAndNode(int bottomPoint)
     {
 
@@ -652,15 +654,15 @@ public class XamlNode
         return pan;
     }
 
-    /// <summary>
-    /// Gets span type.
-    /// </summary>
-    /// <param name="point">
-    /// The point.
-    /// </param>
-    /// <returns>
-    /// The span type.
-    /// </returns>
+/// <summary>
+/// Gets span type.
+/// </summary>
+/// <param name="point">
+/// The point.
+/// </param>
+/// <returns>
+/// The span type.
+/// </returns>
     private SpanType GetSpanType(int point)
     {
 
@@ -696,15 +698,15 @@ public class XamlNode
         return SpanType.BetweenNodes;
     }
 
-    /// <summary>
-    /// Gets top point position and node.
-    /// </summary>
-    /// <param name="topPoint">
-    /// The top point.
-    /// </param>
-    /// <returns>
-    /// The top point position and node.
-    /// </returns>
+/// <summary>
+/// Gets top point position and node.
+/// </summary>
+/// <param name="topPoint">
+/// The top point.
+/// </param>
+/// <returns>
+/// The top point position and node.
+/// </returns>
     private PositionAndNode GetTopPointPositionAndNode(int topPoint)
     {
 
@@ -730,15 +732,15 @@ public class XamlNode
         return pan;
     }
 
-    /// <summary>
-    /// Query if 'ep' is selected.
-    /// </summary>
-    /// <param name="ep">
-    /// The ep.
-    /// </param>
-    /// <returns>
-    /// true if selected, false if not.
-    /// </returns>
+/// <summary>
+/// Query if 'ep' is selected.
+/// </summary>
+/// <param name="ep">
+/// The ep.
+/// </param>
+/// <returns>
+/// true if selected, false if not.
+/// </returns>
     private bool IsSelected(EditorPoints ep)
     {
 
@@ -750,15 +752,15 @@ public class XamlNode
     #endregion
 
     #region Nested type: XamlTagMatchComparer
-    /// <summary>
-    /// Xaml tag match comparer.
-    /// </summary>
-    /// <seealso cref="T:System.Collections.Generic.IComparer{System.Text.RegularExpressions.Match}"/>
+/// <summary>
+/// Xaml tag match comparer.
+/// </summary>
+/// <seealso cref="T:System.Collections.Generic.IComparer{System.Text.RegularExpressions.Match}"/>
     public class XamlTagMatchComparer : IComparer<Match>
     {
         // ReSharper disable once MemberHidesStaticFromOuterClass
         private static readonly Logger logger =
-            LogManager.GetCurrentClassLogger();
+            SettingsHelper.CreateLogger();
 
         #region IComparer<Match> Members
         /// <summary>

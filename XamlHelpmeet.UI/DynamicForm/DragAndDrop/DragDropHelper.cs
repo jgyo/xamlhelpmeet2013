@@ -11,10 +11,12 @@ namespace XamlHelpmeet.UI.DynamicForm.DragAndDrop
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 public class DragDropHelper
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Declarations
 

@@ -12,6 +12,10 @@ namespace XamlHelpmeet.Commands.UI
 {
 using NLog;
 
+using XamlHelpmeet.UI.About;
+
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     About command.
 /// </summary>
@@ -22,7 +26,7 @@ public class AboutCommand : CommandBase
     /// The logger.
     /// </summary>
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
     /// <summary>
     /// Initializes a new instance of the AboutCommand class.
     /// </summary>

@@ -11,10 +11,12 @@ namespace XamlHelpmeet.UI.DynamicForm.DragAndDrop
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 public class DynamicFormUtilities
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     public static FrameworkElement FindAncestor(Type AncestorType,
             Visual Visual)

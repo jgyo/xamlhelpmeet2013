@@ -19,6 +19,8 @@ namespace XamlHelpmeet.Commands.UI
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Edit grid row and columns command.
 /// </summary>
@@ -29,7 +31,7 @@ public class EditGridRowAndColumnsCommand : CommandBase
     /// The logger.
     /// </summary>
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Fields
 

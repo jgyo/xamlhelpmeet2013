@@ -18,6 +18,8 @@ namespace XamlHelpmeet.UI.ExtractPropertiesToStyle
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Interaction logic for ExtractSelectedPropertiesToStyleWindow.xaml.
 /// </summary>
@@ -25,7 +27,7 @@ using NLog;
 public partial class ExtractSelectedPropertiesToStyleWindow : Window
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Fields
 

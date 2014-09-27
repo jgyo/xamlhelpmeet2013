@@ -33,6 +33,8 @@ using XamlHelpmeet.Commands.NoUI;
 using XamlHelpmeet.Commands.UI;
 using XamlHelpmeet.UI.Utilities;
 
+using YoderZone.Extensions.NLog;
+
 #endregion
 
 /// <summary>
@@ -67,7 +69,7 @@ public sealed class XamlHelpmeetPackage : Package
     #region Static Fields
 
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #endregion
 

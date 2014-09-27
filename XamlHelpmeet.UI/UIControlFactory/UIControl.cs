@@ -9,11 +9,13 @@ namespace XamlHelpmeet.UI.UIControlFactory
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 [Serializable]
 public class UIControl : INotifyPropertyChanged, ISerializable
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Fields
 

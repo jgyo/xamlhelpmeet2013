@@ -12,6 +12,8 @@ namespace XamlHelpmeet.Extensions
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Editor points.
 /// </summary>
@@ -24,7 +26,7 @@ public struct EditorPoints
     /// The logger.
     /// </summary>
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     private readonly static EditorPoints _invalid = new EditorPoints();
 

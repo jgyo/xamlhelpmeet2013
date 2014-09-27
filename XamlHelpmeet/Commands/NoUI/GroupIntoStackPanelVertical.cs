@@ -12,6 +12,8 @@ namespace XamlHelpmeet.Commands.NoUI
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Group into stack panel vertical.
 /// </summary>
@@ -19,7 +21,7 @@ using NLog;
 public class GroupIntoStackPanelVertical : CommandBase
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Constructors
 
@@ -70,7 +72,8 @@ public class GroupIntoStackPanelVertical : CommandBase
         }
         catch (Exception ex)
         {
-            UIUtilities.ShowExceptionMessage("Group Into " + this.Caption, ex.Message);
+            UIUtilities.ShowExceptionMessage("Group Into " + this.Caption,
+                                             ex.Message);
             logger.Error("An exception was raised in Execute().", ex);
         }
     }

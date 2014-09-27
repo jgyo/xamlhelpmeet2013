@@ -27,13 +27,15 @@ using System.Diagnostics.Contracts;
 
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 /// An utilities.
 /// </summary>
 public class UIUtilities
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     /// <summary>
     /// Shows the exception message.

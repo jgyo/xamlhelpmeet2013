@@ -8,13 +8,15 @@ namespace XamlHelpmeet.Utility
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     Position and node.
 /// </summary>
 public class PositionAndNode
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Constructors
 
@@ -34,8 +36,8 @@ public class PositionAndNode
     /// </param>
     public PositionAndNode(XamlNode node, int positionIndex)
     {
-       
-       logger.Trace("Entered PositionAndNode()");
+
+        logger.Trace("Entered PositionAndNode()");
         this.Node = node;
         this.PositionIndex = positionIndex;
     }

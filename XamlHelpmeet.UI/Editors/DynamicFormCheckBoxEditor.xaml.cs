@@ -10,6 +10,8 @@ using NLog;
 
 using XamlHelpmeet.UI.Utilities;
 
+using YoderZone.Extensions.NLog;
+
 #endregion
 
 /// <summary>
@@ -18,7 +20,7 @@ using XamlHelpmeet.UI.Utilities;
 public partial class DynamicFormCheckBoxEditor : UserControl
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Constructors
 

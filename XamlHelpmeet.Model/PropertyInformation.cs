@@ -16,6 +16,8 @@ using NLog;
 
 using XamlHelpmeet.Extensions;
 
+using YoderZone.Extensions.NLog;
+
 #endregion
 
 /// <summary>
@@ -26,7 +28,7 @@ using XamlHelpmeet.Extensions;
 public class PropertyInformation : INotifyPropertyChanged
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Fields
     /// <summary>

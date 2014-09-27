@@ -11,6 +11,8 @@ using NLog;
 
 using XamlHelpmeet.UI.CreateBusinessForm;
 
+using YoderZone.Extensions.NLog;
+
 #endregion
 
 /// <summary>
@@ -19,7 +21,7 @@ using XamlHelpmeet.UI.CreateBusinessForm;
 public partial class CheckBoxEditor : UserControl
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Constructors
 

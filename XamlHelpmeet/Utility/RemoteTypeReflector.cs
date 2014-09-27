@@ -1,4 +1,23 @@
-﻿using System;
+﻿// <copyright file="RemoteTypeReflector.cs" company="YoderZone.com">
+// Copyright (c) 2014 Gil Yoder. All rights reserved.
+// </copyright>
+// <author>Gil Yoder</author>
+// <date>9/20/2014</date>
+// <summary>Implements the remote type reflector class</summary>
+// <remarks>
+// Licensed under the Microsoft Public License (Ms-PL); you may not
+// use this file except in compliance with the License. You may obtain a copy
+// of the License at
+//
+// https://remarker.codeplex.com/license
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+// WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+// License for the specific language governing permissions and limitations
+// under the License.
+// </remarks>
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -18,30 +37,38 @@ using NLog;
 
 using VSLangProj;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
-///     Remote type reflector.
+/// Remote type reflector.
 /// </summary>
 public class RemoteTypeReflector
 {
+    /// <summary>
+    /// The logger.
+    /// </summary>
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
+    /// <summary>
+    /// The secondary application domain.
+    /// </summary>
     private AppDomain _secondaryAppDomain;
 
     /// <summary>
-    ///     Gets class entity from selected class.
+    /// Gets class entity from selected class.
     /// </summary>
     /// <exception cref="Exception">
-    ///     Thrown when an exception error condition occurs.
+    /// Thrown when an exception error condition occurs.
     /// </exception>
     /// <param name="TargetProject">
-    ///     Target project.
+    /// Target project.
     /// </param>
     /// <param name="NameOfSourceCommand">
-    ///     Name of the source command.
+    /// Name of the source command.
     /// </param>
     /// <returns>
-    ///     The class entity from selected class.
+    /// The class entity from selected class.
     /// </returns>
     public ClassEntity GetClassEntityFromSelectedClass(Project TargetProject,
             string NameOfSourceCommand)
@@ -209,6 +236,15 @@ public class RemoteTypeReflector
 
     }
 
+    /// <summary>
+    /// Gets assembly information.
+    /// </summary>
+    /// <param name="TargetProject">
+    /// Target project.
+    /// </param>
+    /// <returns>
+    /// The assembly information.
+    /// </returns>
     private string GetAssemblyInformation(Project TargetProject)
     {
 
@@ -224,19 +260,19 @@ public class RemoteTypeReflector
     }
 
     /// <summary>
-    ///     Gets class entities for selected project.
+    /// Gets class entities for selected project.
     /// </summary>
     /// <exception cref="Exception">
-    ///     Thrown when an exception error condition occurs.
+    /// Thrown when an exception error condition occurs.
     /// </exception>
     /// <param name="TargetProject">
-    ///     Target project.
+    /// Target project.
     /// </param>
     /// <param name="NameOfSourceCommand">
-    ///     Name of the source command.
+    /// Name of the source command.
     /// </param>
     /// <returns>
-    ///     The class entities for selected project.
+    /// The class entities for selected project.
     /// </returns>
     public ClassInformationList GetClassEntitiesForSelectedProject(
         Project TargetProject, string NameOfSourceCommand)
@@ -345,6 +381,15 @@ public class RemoteTypeReflector
         return remoteResponse.Result;
     }
 
+    /// <summary>
+    /// Gets project references.
+    /// </summary>
+    /// <param name="TargetProject">
+    /// Target project.
+    /// </param>
+    /// <returns>
+    /// The project references.
+    /// </returns>
     private List<string> GetProjectReferences(Project TargetProject)
     {
 
@@ -378,9 +423,24 @@ public class RemoteTypeReflector
         return list;
     }
 
+    /// <summary>
+    /// Event handler. Called by SecondaryAppDomain for assembly resolve
+    /// events.
+    /// </summary>
+    /// <param name="sender">
+    /// Source of the event.
+    /// </param>
+    /// <param name="args">
+    /// Resolve event information.
+    /// </param>
+    /// <returns>
+    /// An Assembly.
+    /// </returns>
     private Assembly SecondaryAppDomain_AssemblyResolve(object sender,
             ResolveEventArgs args)
     {
+        logger.Trace("Entered SecondaryAppDomain_AssemblyResolve.");
+
         var name = args.Name;
 
         return (from item in AppDomain.CurrentDomain.GetAssemblies()

@@ -2,10 +2,12 @@ namespace XamlHelpmeet.UI.ViewModelCreation
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 public class CreateCommandSource
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     #region Properties
 

@@ -1,13 +1,15 @@
-﻿using System;
+﻿namespace XamlHelpmeet.UI.About
+{
+using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
 
-namespace XamlHelpmeet.UI
-{
 using NLog;
+
+using YoderZone.Extensions.NLog;
 
 /// <summary>
 /// Interaction logic for AboutWindow.xaml
@@ -15,7 +17,7 @@ using NLog;
 public partial class AboutWindow : Window
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     public AboutWindow()
     {
@@ -29,7 +31,7 @@ public partial class AboutWindow : Window
         logger.Trace("Entered Window_MouseDown()");
 
         if (!e.Handled)
-        { Close(); }
+        { this.Close(); }
     }
 
     private string Version
@@ -51,7 +53,7 @@ public partial class AboutWindow : Window
     {
         logger.Trace("Entered Window_Loaded_1()");
 
-        VersionRun.Text = Version;
+        this.VersionRun.Text = this.Version;
     }
 
     private void Hyperlink_Click_1(object sender, RoutedEventArgs e)

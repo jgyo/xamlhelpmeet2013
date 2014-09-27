@@ -6,11 +6,13 @@ namespace XamlHelpmeet.UI.UIControlFactory
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 [Serializable]
 public class UIProperty : INotifyPropertyChanged, ISerializable
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
 
     public UIProperty()

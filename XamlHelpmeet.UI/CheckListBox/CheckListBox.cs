@@ -10,6 +10,8 @@ namespace XamlHelpmeet.UI.CheckListBox
 {
 using NLog;
 
+using YoderZone.Extensions.NLog;
+
 /// <summary>
 ///     CheckListBox class.
 /// </summary>
@@ -18,7 +20,7 @@ using NLog;
 public class CheckListBox : ContentControl
 {
     private static readonly Logger logger =
-        LogManager.GetCurrentClassLogger();
+        SettingsHelper.CreateLogger();
 
     /// <summary>
     ///     The brush property of the checkbox.
